@@ -49,10 +49,33 @@ $app->post ( '/insert_noti', function () use ($app) {
 	$obj = new dboperation ();
 	$noti_device = new notification_device ();
 	$noti_device->slug = $slug;
-	$noti_device->device_id = $device_id;
+	//$noti_device->device_id = $device_id;
 	$noti_device->isOn = $isOn;
 	
-	$response = $obj->insertNotiDevice ( $noti_device );
+	$response = $obj->insertNotiDevice ( $noti_device, $device_id );
+	echoRespnse ( 201, $response );
+} );
+
+$app->post ( '/update_noti', function () use ($app) {
+	$response = array ();
+	
+	verifyRequiredParams ( array (
+			'slug',
+			'device_id',
+			'isOn' 
+	) );
+	
+	$slug = $app->request->post ( 'slug' );
+	$device_id = $app->request->post ( 'device_id' );
+	$isOn = $app->request->post ( 'isOn' );
+	
+	$obj = new dboperation ();
+	$noti_device = new notification_device ();
+	$noti_device->slug = $slug;
+	//$noti_device->device_id = $device_id;
+	$noti_device->isOn = $isOn;
+	
+	$response = $obj->updateNotiDevice ( $noti_device, $device_id );
 	echoRespnse ( 201, $response );
 } );
 
