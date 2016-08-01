@@ -79,10 +79,26 @@ $app->post ( '/update_noti', function () use ($app) {
 	echoRespnse ( 201, $response );
 } );
 
-$app->post ( '/fixture', function () use ($app) {
+/**
+ * *******************API for match details************************
+ */
+/**
+ * storing fixture
+ */
+$app->post ( '/fixtures', function () use ($app) {
 	$response = array ();
 	$obj = new consumeJSON ();
-	$response = $obj->insertFixture ();
+	$response = $obj->insertFixtures ();
+	echoRespnse ( 201, $response );
+} );
+
+/**
+ * add data in legue table
+ */
+$app->post ( '/legue', function () use ($app) {
+	$response = array ();
+	$obj = new consumeJSON ();
+	$response = $obj->insertLegue();
 	echoRespnse ( 201, $response );
 } );
 

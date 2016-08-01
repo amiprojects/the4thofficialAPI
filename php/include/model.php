@@ -11,7 +11,8 @@ class notification_device {
 	public $isOn;
 }
 class fixtures {
-	public $date;
+	public $id;
+	public $match_time;
 	public $status;
 	public $match_date;
 	public $goalsHomeTeam;
@@ -21,5 +22,19 @@ class fixtures {
 	public $leagueId;
 	public $venue;
 	public $spectators;
+	public $extra_minute;
+	public $competition_id;
+	public $venue_id;
+	public $ht_score;
+	public $ft_score;
+	public $et_score;
+}
+class league{
+	public $id;
+	public $server_id;
+	public $name;
+	public $league;
+	public $season;
+	public $is_active;
 }
 ?>
