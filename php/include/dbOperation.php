@@ -30,7 +30,6 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
-	
 	function insertNotiDevice(notification_device $notiDevice, $device_id) {
 		$response = array ();
 		$this->conn->autocommit ( false );
@@ -45,19 +44,14 @@ class dboperation extends DbConnect {
 				$stmt = $this->conn->prepare ( $sql );
 				
 				if ($stmt) {
-					if (! $tempdv ['error']) {
-						$stmt->bind_param ( "sii", $notiDevice->slug, $tempdv ['device']->id, $notiDevice->isOn );
-						if ($stmt->execute ()) {
-							$this->conn->commit ();
-							$response ["error"] = false;
-							$response ["msg"] = INSERT_SUCCESS;
-						} else {
-							$response ["error"] = true;
-							$response ["msg"] = INSERT_FAILED;
-						}
+					$stmt->bind_param ( "sii", $notiDevice->slug, $tempdv ['device']->id, $notiDevice->isOn );
+					if ($stmt->execute ()) {
+						$this->conn->commit ();
+						$response ["error"] = false;
+						$response ["msg"] = INSERT_SUCCESS;
 					} else {
 						$response ["error"] = true;
-						$response ["msg"] = DEVICE_NOT_FOUND;
+						$response ["msg"] = INSERT_FAILED;
 					}
 				} else {
 					$response ["error"] = true;
@@ -71,7 +65,6 @@ class dboperation extends DbConnect {
 		}
 		
 		return $response;
-		// return $tempdv1;
 	}
 	function updateNotiDevice(notification_device $noti_device, $device_id) {
 		$response = array ();
