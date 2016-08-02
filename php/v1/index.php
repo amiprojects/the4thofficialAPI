@@ -49,7 +49,7 @@ $app->post ( '/insert_noti', function () use ($app) {
 	$obj = new dboperation ();
 	$noti_device = new notification_device ();
 	$noti_device->slug = $slug;
-	//$noti_device->device_id = $device_id;
+	// $noti_device->device_id = $device_id;
 	$noti_device->isOn = $isOn;
 	
 	$response = $obj->insertNotiDevice ( $noti_device, $device_id );
@@ -72,7 +72,7 @@ $app->post ( '/update_noti', function () use ($app) {
 	$obj = new dboperation ();
 	$noti_device = new notification_device ();
 	$noti_device->slug = $slug;
-	//$noti_device->device_id = $device_id;
+	// $noti_device->device_id = $device_id;
 	$noti_device->isOn = $isOn;
 	
 	$response = $obj->updateNotiDevice ( $noti_device, $device_id );
@@ -98,9 +98,11 @@ $app->post ( '/fixtures', function () use ($app) {
 $app->post ( '/legue', function () use ($app) {
 	$response = array ();
 	$obj = new consumeJSON ();
-	$response = $obj->insertLegue();
+	$response = $obj->insertLegue ();
 	echoRespnse ( 201, $response );
 } );
+
+
 
 /**
  * Verifying required params posted or not
