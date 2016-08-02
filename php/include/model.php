@@ -29,12 +29,58 @@ class fixtures {
 	public $ft_score;
 	public $et_score;
 }
+
 class league{
 	public $id;
-	public $server_id;
+	public $api_id;
 	public $name;
-	public $league;
-	public $season;
 	public $is_active;
+}
+
+class season{
+	public $id;
+	public $api_id;
+	public $league_id;
+	public $name;
+	public $is_active;
+}
+class team{
+	public $id;
+	public $api_id;
+	public $name;
+	public $venue;
+	public $venueCity;
+	public $imageUrl;
+	public $logo;
+}
+class teamSeasonMapping{
+	public $team_id;
+	public $season_id;
+}
+class player{
+	public $id;
+	public $api_id;
+	public $team_id;
+	public $jerseyNumber;
+	public $name;
+	public $position_id;
+	public $position;
+	public $nationality;
+	public $dateOfBirth;
+	public $contractUntil;
+	public $imageUrl;
+	public $country;
+	public $height;
+	public $weight;
+	public $fouls_commited;
+	public $fouls_drawn;
+	public $goals;
+	public $offsides;
+	public $missed_penalties;
+	public $scored_penalties;
+	public $redcards;
+	public $saves;
+	public $shots_total;
+	public $yellowcards;
 }
 ?>
