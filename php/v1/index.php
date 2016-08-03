@@ -85,10 +85,9 @@ $app->post ( '/update_noti', function () use ($app) {
 /**
  * storing fixture
  */
-$app->post ( '/fixtures', function () use ($app) {
+$app->get ( '/getAPIKey', function () use ($app) {
 	$response = array ();
-	$obj = new consumeJSON ();
-	$response = $obj->insertFixtures ();
+	$response = array("API_Key"=>api_token);
 	echoRespnse ( 201, $response );
 } );
 
