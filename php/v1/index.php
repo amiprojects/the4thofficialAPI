@@ -79,6 +79,40 @@ $app->post ( '/update_noti', function () use ($app) {
 	echoRespnse ( 201, $response );
 } );
 
+$app->post ( '/test', function () use ($app) {
+	$response = array ();
+	
+	$myArray = array();	
+	$myArray1 = array();
+	$myArray2 = array();
+	
+	$noti_device = new notification_device ();
+	$noti_device->id = 1;
+	$noti_device->slug = 'dfsdf';
+	$noti_device->device_id = 'dffsafd';
+	$noti_device->isOn = 1;
+	
+	$myArray[0] = $noti_device;
+	$myArray[1] = $noti_device;
+	
+	$myArray1["one"] = array($noti_device);
+	array_push($myArray1["one"], $noti_device);
+	$myArray1["two"] = array($noti_device);
+	array_push($myArray1["two"], $noti_device);
+	
+	$myArray2[0]=$myArray1;
+		
+	$response["noti_dev"] = $noti_device;	
+	$response["my_array"] = $myArray;
+	$response["my_array1"] = $myArray1;
+	$response["my_array2"] = $myArray2;
+	echoRespnse ( 201, $response );
+} );
+
+$app->get('/players', function()use($app){
+	$obj = new dboperation(); 
+	echoRespnse(202, $obj->getTeamDetailsByTeamId(146));
+});
 /**
  * *******************API for match details************************
  */
@@ -101,8 +135,6 @@ $app->post ( '/legue', function () use ($app) {
 	$response = $obj->insertLegue ();
 	echoRespnse ( 201, $response );
 } );
-
-
 
 /**
  * Verifying required params posted or not

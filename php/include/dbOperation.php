@@ -161,7 +161,78 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	
+	function getTeamDetailsByTeamId($teamId) {
+		
+		$response = array ();
+		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where team_id=?";
+		$stmt = $this->conn->prepare ( $sql );
+		$q=0;
+		$temparr=array();
+	
+		if ($stmt) {
+			$stmt->bind_param ( "i", $teamId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result($id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards);
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ($stmt->fetch()){
+						$player=new player();
+						$player->id=$id;
+						$player->api_id=$api_id;
+						$player->team_id=$team_id;
+						$player->jerseyNumber=$jerseyNumber;
+						$player->name=$name;
+						$player->position_id=$position_id;
+						$player->position=$position;
+						$player->nationality=$nationality;
+						$player->dateOfBirth=$dateOfBirth;
+						$player->contractUntil=$contractUntil;
+						$player->imageUrl=$imageUrl;
+						$player->country=$country;
+						$player->height=$height;
+						$player->weight=$weight;
+						$player->fouls_commited=$fouls_commited;
+						$player->fouls_drawn=$fouls_drawn;
+						$player->goals=$goals;
+						$player->offsides=$offsides;
+						$player->missed_penalties=$missed_penalties;
+						$player->scored_penalties=$scored_penalties;
+						$player->redcards=$redcards;
+						$player->saves=$saves;
+						$player->shots_total=$shots_total;
+						$player->yellowcards=$yellowcards;
+						
+						$positionInCap=strtoupper($position);
+						
+						if (array_key_exists($positionInCap,$temparr)){
+							array_push($temparr[$positionInCap], $player);
+						}else{
+							$temparr[$positionInCap]=array($player);
+						}
+						
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response['Players']=$temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
 }
+
 
 // while ( $result = $stmt1->fetch () ) {
 // $memory = new ami_h_memories ( $id, $couple_id, $ami_h_login_id, $description, $created_date );
