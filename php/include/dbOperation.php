@@ -180,7 +180,7 @@ class dboperation extends DbConnect {
 	}
 	// ///////////////////////////////////////////////////////////////////////////////
 	
-	// to get data from players table by team_id////////////////////////////////////
+	// to get position wise data from players table by team_id////////////////////////////////////
 	function getPositionWisePlayersByTeamId($teamId) {
 		$response = array ();
 		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where team_id=?";
@@ -225,7 +225,7 @@ class dboperation extends DbConnect {
 							array_push ( $temparr [$position], $player );
 						} else {
 							$temparr [$position] = array (
-								$player 
+									$player 
 							);
 						}
 					}
@@ -255,7 +255,7 @@ class dboperation extends DbConnect {
 		$sql = "SELECT id, api_id, name, venue, venueCity, imageUrl, logo FROM team WHERE name=?";
 		$stmt = $this->conn->prepare ( $sql );
 		$temparr = array ();
-	
+		
 		if ($stmt) {
 			$stmt->bind_param ( "s", $teamName );
 			if ($stmt->execute ()) {
@@ -264,22 +264,173 @@ class dboperation extends DbConnect {
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					while ( $stmt->fetch () ) {
-						$team = new team();
+						$team = new team ();
 						$team->id = $id;
 						$team->api_id = $api_id;
 						$team->name = $name;
 						$team->venue = $venue;
 						$team->venueCity = $venueCity;
 						$team->imageUrl = $imageUrl;
-						$team->logo = $logo;						
-	
-						//array_push ( $temparr, $team );
-						$temparr=$team;
-					}
+						$team->logo = $logo;
 						
+						// array_push ( $temparr, $team );
+						$temparr = $team;
+					}
+					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ['team'] = $temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from league_slug table by name////////////////////////////////////
+	function getLeagueSlugBySlug($slug) {
+		$response = array ();
+		$sql = "SELECT league_id, slug FROM league_slug WHERE slug=?";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		
+		if ($stmt) {
+			$stmt->bind_param ( "s", $slug );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $league_id, $slug );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$league_slug = new league_slug ();
+						$league_slug->slug = $slug;
+						$league_slug->league_id = $league_id;
+						
+						// array_push ( $temparr, $league_slug );
+						$temparr = $league_slug;
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['league_slug'] = $temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get last data from season table by leagueId////////////////////////////////////
+	function getLastSeasonByleagueId($leagueId) {
+		$response = array ();
+		$sql = "SELECT id, api_id, is_active, league_id, name FROM season WHERE league_id=? order by id desc";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		
+		if ($stmt) {
+			$stmt->bind_param ( "i", $leagueId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $is_active, $league_id, $name );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$season = new season ();
+						$season->id = $id;
+						$season->api_id = $api_id;
+						$season->is_active = $is_active;
+						$season->league_id = $league_id;
+						$season->name = $name;
+						
+						array_push ( $temparr, $season );
+						// $temparr=$season;
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['season'] = $temparr [0];
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get date wise data from fixture table by league_id and season_id////////////
+	function getDateWiseFixturesByLeagueIdAndSeasonId($leagueId, $seasonId) {
+		$response = array ();
+		$sql = "SELECT id, api_id, season_id, competition_id, match_time, status, match_date, goalsHomeTeam, goalsAwayTeam, homeTeamId, awayTeamId, leagueId, venue, spectators, extra_minute, venue_id, ht_score, ft_score, et_score FROM fixtures WHERE leagueId = ? and season_id = ? order by match_date asc";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		
+		if ($stmt) {
+			$stmt->bind_param ( "ii", $leagueId, $seasonId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $season_id, $competition_id, $match_time, $status, $match_date, $goalsHomeTeam, $goalsAwayTeam, $homeTeamId, $awayTeamId, $leagueId, $venue, $spectators, $extra_minute, $venue_id, $ht_score, $ft_score, $et_score );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$fixture = new fixtures();
+						$fixture->id = $id;
+						$fixture->api_id = $api_id;
+						$fixture->season_id = $season_id;
+						$fixture->competition_id = $competition_id;
+						$fixture->match_time = $match_time;
+						$fixture->status = $status;
+						$fixture->match_date = $match_date;
+						$fixture->goalsHomeTeam = $goalsHomeTeam;
+						$fixture->goalsAwayTeam = $goalsAwayTeam;
+						$fixture->homeTeamId = $homeTeamId;
+						$fixture->awayTeamId = $awayTeamId;
+						$fixture->leagueId = $leagueId;
+						$fixture->venue = $venue;
+						$fixture->spectators = $spectators;
+						$fixture->extra_minute = $extra_minute;
+						$fixture->venue_id = $venue_id;
+						$fixture->ht_score = $ht_score;
+						$fixture->ft_score = $ft_score;
+						$fixture->et_score = $et_score;
+						
+						if (array_key_exists ( $match_date, $temparr )) {
+							array_push ( $temparr [$match_date], $fixture );
+						} else {
+							$temparr [$match_date] = array (
+								$fixture 
+							);
+						}
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['fixtures'] = $temparr;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;

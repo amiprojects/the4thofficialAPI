@@ -114,4 +114,8 @@ class leagueStandings {
 	public $result;
 	public $team_id;
 }
+class league_slug {
+	public $slug;
+	public $league_id;
+}
 ?>
