@@ -128,6 +128,13 @@ $app->get ( '/players/team/:id', function ($id) use ($app) {
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
+// to get data from team table by name////////////////////////////////////
+$app->get ( '/team/:name', function ($name) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getTeamByTeamName ( $name ) );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * *******************API for match details************************
  */

@@ -185,7 +185,6 @@ class dboperation extends DbConnect {
 		$response = array ();
 		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where team_id=?";
 		$stmt = $this->conn->prepare ( $sql );
-		$q = 0;
 		$temparr = array ();
 		
 		if ($stmt) {
@@ -234,6 +233,53 @@ class dboperation extends DbConnect {
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ['Players'] = $temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from team table by name////////////////////////////////////
+	function getTeamByTeamName($teamName) {
+		$response = array ();
+		$sql = "SELECT id, api_id, name, venue, venueCity, imageUrl, logo FROM team WHERE name=?";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+	
+		if ($stmt) {
+			$stmt->bind_param ( "s", $teamName );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $name, $venue, $venueCity, $imageUrl, $logo );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$team = new team();
+						$team->id = $id;
+						$team->api_id = $api_id;
+						$team->name = $name;
+						$team->venue = $venue;
+						$team->venueCity = $venueCity;
+						$team->imageUrl = $imageUrl;
+						$team->logo = $logo;						
+	
+						//array_push ( $temparr, $team );
+						$temparr=$team;
+					}
+						
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['team'] = $temparr;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
