@@ -15,31 +15,40 @@ class consumeJSON extends DbConnect {
 		
 		$temp_res = array ();
 		$q = 0;
-		foreach ( $obj ['matches'] ['data'] as $key => $value ) {
+		
+		try {
 			
-			$fixtures = new fixtures ();
-			$fixtures->api_id = $value ['id'];
-			$fixtures->season_id = $value ['season_id'];
-			$fixtures->match_time = $value ['starting_time'];
-			$fixtures->status = $value ['status'];
-			$fixtures->match_date = $value ['starting_date'];
-			$fixtures->goalsHomeTeam = $value ['home_score'];
-			$fixtures->goalsAwayTeam = $value ['away_score'];
-			$fixtures->homeTeamId = $value ['home_team_id'];
-			$fixtures->awayTeamId = $value ['away_team_id'];
-			$fixtures->leagueId = $value ['competition_id'];
-			$fixtures->venue = $value ['venue'] ['name'];
-			$fixtures->venue_id = $value ['venue'] ['id'];
-			$fixtures->spectators = $value ['status'];
-			$fixtures->ht_score = $value ['ht_score'];
-			$fixtures->ft_score = $value ['ft_score'];
-			$fixtures->et_score = $value ['et_score'];
-			$fixtures->extra_minute = $value ['extra_minute'];
-			
-			$temp_res [$q ++] = $this->insertFixture ( $fixtures );
+			foreach ( $obj ['matches'] ['data'] as $key => $value ) {
+				
+				$fixtures = new fixtures ();
+				$fixtures->api_id = $value ['id'];
+				$fixtures->season_id = $value ['season_id'];
+				$fixtures->match_time = $value ['starting_time'];
+				$fixtures->status = $value ['status'];
+				$fixtures->match_date = $value ['starting_date'];
+				$fixtures->goalsHomeTeam = $value ['home_score'];
+				$fixtures->goalsAwayTeam = $value ['away_score'];
+				$fixtures->homeTeamId = $value ['home_team_id'];
+				$fixtures->awayTeamId = $value ['away_team_id'];
+				$fixtures->leagueId = $value ['competition_id'];
+				$fixtures->venue = $value ['venue'] ['name'];
+				$fixtures->venue_id = $value ['venue'] ['id'];
+				$fixtures->spectators = $value ['status'];
+				$fixtures->ht_score = $value ['ht_score'];
+				$fixtures->ft_score = $value ['ft_score'];
+				$fixtures->et_score = $value ['et_score'];
+				$fixtures->extra_minute = $value ['extra_minute'];
+				
+				$temp_res [$q ++] = $this->insertFixture ( $fixtures );
+				$response ['error'] = false;
+				$response ['result'] = $temp_res;
+			}
+		} catch ( Exception $e ) {
+			$response ['error'] = true;
+			$response ['msg'] = $e->getMessage();
 		}
-		$response ['error'] = false;
-		$response ['result'] = $temp_res;
+		
+		
 		return $response;
 	}
 	
@@ -114,7 +123,7 @@ class consumeJSON extends DbConnect {
 				$currentSeason->is_active = $value ['currentSeason'] ['active'];
 				$resp ['season'] = $this->insertSeason ( $currentSeason );
 				$resp ['team'] = $this->insertTeams ( $value ['currentSeason'] ['id'] );
-				$resp['standings']=$this->insertStandings($value ['currentSeason'] ['id']);
+				$resp ['standings'] = $this->insertStandings ( $value ['currentSeason'] ['id'] );
 			}
 			$resp ['legue'] = $res;
 			$tempArr [$q ++] = $resp;
@@ -389,7 +398,7 @@ class consumeJSON extends DbConnect {
 	}
 	/**
 	 * insert standings by season id
-	 * 
+	 *
 	 * @param unknown $seasonId        	
 	 * @return boolean[]|boolean[][][]|string[][][]|NULL[][][]
 	 */
@@ -400,7 +409,7 @@ class consumeJSON extends DbConnect {
 		$q = 0;
 		$tempArr = array ();
 		
-		foreach ( $obj['data'] [0] ['standings'] ['data'] as $value ) {
+		foreach ( $obj ['data'] [0] ['standings'] ['data'] as $value ) {
 			$leaguestandings = new leagueStandings ();
 			
 			$leaguestandings->api_id = $value ['id'];
@@ -442,7 +451,7 @@ class consumeJSON extends DbConnect {
 	
 	/**
 	 * insert legue standings
-	 * 
+	 *
 	 * @param unknown $leaguestandings        	
 	 * @return boolean[]|string[]|NULL[]
 	 */

@@ -194,7 +194,7 @@ function echoRespnse($status_code, $response) {
 	
 	// setting response content type to json
 	
-	$app->contentType ( 'application/json; utf8' );
+	$app->contentType ( 'application/json; charset=utf-8' );
 	$app->response->headers->set ( 'Access-Control-Allow-Origin', '*' );
 	echo json_encode ( $response );
 }
