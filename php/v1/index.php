@@ -14,6 +14,43 @@ date_default_timezone_set ( 'Asia/Kolkata' );
 global $date;
 $date = date ( "Y-m-d" );
 
+// for testing///////////////////////////////////////////////////////////////////
+$app->post ( '/test', function () use ($app) {
+	$response = array ();
+	
+	$myArray = array ();
+	$myArray1 = array ();
+	$myArray2 = array ();
+	
+	$noti_device = new notification_device ();
+	$noti_device->id = 1;
+	$noti_device->slug = 'dfsdf';
+	$noti_device->device_id = 'dffsafd';
+	$noti_device->isOn = 1;
+	
+	$myArray [0] = $noti_device;
+	$myArray [1] = $noti_device;
+	
+	$myArray1 ["one"] = array (
+			$noti_device 
+	);
+	array_push ( $myArray1 ["one"], $noti_device );
+	$myArray1 ["two"] = array (
+			$noti_device 
+	);
+	array_push ( $myArray1 ["two"], $noti_device );
+	
+	$myArray2 [0] = $myArray1;
+	
+	$response ["noti_dev"] = $noti_device;
+	$response ["my_array"] = $myArray;
+	$response ["my_array1"] = $myArray1;
+	$response ["my_array2"] = $myArray2;
+	echoRespnse ( 201, $response );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
+// for data inserting or ignoring into install_device table///////////////////////
 $app->post ( '/deviceid', function () use ($app) {
 	global $date;
 	$response = array ();
@@ -32,7 +69,9 @@ $app->post ( '/deviceid', function () use ($app) {
 	$response = $obj->insertDeviceID ( $device );
 	echoRespnse ( 201, $response );
 } );
+// ///////////////////////////////////////////////////////////////////////////////
 
+// for data inserting or updating into notification_device table///////////////
 $app->post ( '/insert_noti', function () use ($app) {
 	$response = array ();
 	
@@ -55,7 +94,9 @@ $app->post ( '/insert_noti', function () use ($app) {
 	$response = $obj->insertNotiDevice ( $noti_device, $device_id );
 	echoRespnse ( 201, $response );
 } );
+// ///////////////////////////////////////////////////////////////////////////////
 
+// for data updating into notification_device table/////////////////////////////
 $app->post ( '/update_noti', function () use ($app) {
 	$response = array ();
 	
@@ -78,41 +119,15 @@ $app->post ( '/update_noti', function () use ($app) {
 	$response = $obj->updateNotiDevice ( $noti_device, $device_id );
 	echoRespnse ( 201, $response );
 } );
+// ///////////////////////////////////////////////////////////////////////////////
 
-$app->post ( '/test', function () use ($app) {
-	$response = array ();
-	
-	$myArray = array();	
-	$myArray1 = array();
-	$myArray2 = array();
-	
-	$noti_device = new notification_device ();
-	$noti_device->id = 1;
-	$noti_device->slug = 'dfsdf';
-	$noti_device->device_id = 'dffsafd';
-	$noti_device->isOn = 1;
-	
-	$myArray[0] = $noti_device;
-	$myArray[1] = $noti_device;
-	
-	$myArray1["one"] = array($noti_device);
-	array_push($myArray1["one"], $noti_device);
-	$myArray1["two"] = array($noti_device);
-	array_push($myArray1["two"], $noti_device);
-	
-	$myArray2[0]=$myArray1;
-		
-	$response["noti_dev"] = $noti_device;	
-	$response["my_array"] = $myArray;
-	$response["my_array1"] = $myArray1;
-	$response["my_array2"] = $myArray2;
-	echoRespnse ( 201, $response );
+// to get data from players table by team_id////////////////////////////////////
+$app->get ( '/players/team/:id', function ($id) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getPositionWisePlayersByTeamId ( $id ) );
 } );
+// ///////////////////////////////////////////////////////////////////////////////
 
-$app->get('/players', function()use($app){
-	$obj = new dboperation(); 
-	echoRespnse(202, $obj->getTeamDetailsByTeamId(146));
-});
 /**
  * *******************API for match details************************
  */
@@ -121,7 +136,9 @@ $app->get('/players', function()use($app){
  */
 $app->get ( '/getAPIKey', function () use ($app) {
 	$response = array ();
-	$response = array("API_Key"=>api_token);
+	$response = array (
+			"API_Key" => api_token 
+	);
 	echoRespnse ( 201, $response );
 } );
 

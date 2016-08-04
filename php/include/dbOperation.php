@@ -3,11 +3,16 @@ require_once dirname ( __FILE__ ) . '/DbConnect.php';
 class dboperation extends DbConnect {
 	public $conn;
 	public $db;
+	
+	// for Database connection //////////////////////////////////////////////////////
 	function __construct() {
 		// opening db connection
 		$this->db = new DbConnect ();
 		$this->conn = $this->db->connect ();
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// for data inserting or ignoring into install_device table///////////////////////
 	function insertDeviceID(install_device $did) {
 		$response = array ();
 		$this->conn->autocommit ( false );
@@ -30,6 +35,9 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// for data inserting or updating into notification_device table///////////////
 	function insertNotiDevice(notification_device $notiDevice, $device_id) {
 		$response = array ();
 		$this->conn->autocommit ( false );
@@ -66,6 +74,9 @@ class dboperation extends DbConnect {
 		
 		return $response;
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// for data updating into notification_device table/////////////////////////////
 	function updateNotiDevice(notification_device $noti_device, $device_id) {
 		$response = array ();
 		$this->conn->autocommit ( false );
@@ -94,12 +105,15 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * get install device by device id
 	 *
 	 * @param unknown $deviceId        	
 	 */
+	
+	// to get data from install_device table by device_id////////////////////////////////////
 	function getDeviceByDeviceID($deviceId) {
 		$response = array ();
 		$sql = "SELECT id,device_id,install_date FROM install_device where device_id=?;";
@@ -134,6 +148,9 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from notification_device table by device_id and slug////////////////////
 	function getNotiDeviceByDeviceIDandSlug($deviceId, $slug) {
 		$response = array ();
 		$sql = "SELECT * FROM notification_device where device_id=? and slug=?;";
@@ -161,62 +178,62 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
 	
-	function getTeamDetailsByTeamId($teamId) {
-		
+	// to get data from players table by team_id////////////////////////////////////
+	function getPositionWisePlayersByTeamId($teamId) {
 		$response = array ();
 		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where team_id=?";
 		$stmt = $this->conn->prepare ( $sql );
-		$q=0;
-		$temparr=array();
-	
+		$q = 0;
+		$temparr = array ();
+		
 		if ($stmt) {
 			$stmt->bind_param ( "i", $teamId );
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
-				$stmt->bind_result($id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards);
+				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
-					while ($stmt->fetch()){
-						$player=new player();
-						$player->id=$id;
-						$player->api_id=$api_id;
-						$player->team_id=$team_id;
-						$player->jerseyNumber=$jerseyNumber;
-						$player->name=$name;
-						$player->position_id=$position_id;
-						$player->position=$position;
-						$player->nationality=$nationality;
-						$player->dateOfBirth=$dateOfBirth;
-						$player->contractUntil=$contractUntil;
-						$player->imageUrl=$imageUrl;
-						$player->country=$country;
-						$player->height=$height;
-						$player->weight=$weight;
-						$player->fouls_commited=$fouls_commited;
-						$player->fouls_drawn=$fouls_drawn;
-						$player->goals=$goals;
-						$player->offsides=$offsides;
-						$player->missed_penalties=$missed_penalties;
-						$player->scored_penalties=$scored_penalties;
-						$player->redcards=$redcards;
-						$player->saves=$saves;
-						$player->shots_total=$shots_total;
-						$player->yellowcards=$yellowcards;
+					while ( $stmt->fetch () ) {
+						$player = new player ();
+						$player->id = $id;
+						$player->api_id = $api_id;
+						$player->team_id = $team_id;
+						$player->jerseyNumber = $jerseyNumber;
+						$player->name = $name;
+						$player->position_id = $position_id;
+						$player->position = $position;
+						$player->nationality = $nationality;
+						$player->dateOfBirth = $dateOfBirth;
+						$player->contractUntil = $contractUntil;
+						$player->imageUrl = $imageUrl;
+						$player->country = $country;
+						$player->height = $height;
+						$player->weight = $weight;
+						$player->fouls_commited = $fouls_commited;
+						$player->fouls_drawn = $fouls_drawn;
+						$player->goals = $goals;
+						$player->offsides = $offsides;
+						$player->missed_penalties = $missed_penalties;
+						$player->scored_penalties = $scored_penalties;
+						$player->redcards = $redcards;
+						$player->saves = $saves;
+						$player->shots_total = $shots_total;
+						$player->yellowcards = $yellowcards;
 						
-						$positionInCap=strtoupper($position);
-						
-						if (array_key_exists($positionInCap,$temparr)){
-							array_push($temparr[$positionInCap], $player);
-						}else{
-							$temparr[$positionInCap]=array($player);
+						if (array_key_exists ( $position, $temparr )) {
+							array_push ( $temparr [$position], $player );
+						} else {
+							$temparr [$position] = array (
+								$player 
+							);
 						}
-						
 					}
 					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
-					$response['Players']=$temparr;
+					$response ['Players'] = $temparr;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
@@ -231,8 +248,8 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	// ///////////////////////////////////////////////////////////////////////////////
 }
-
 
 // while ( $result = $stmt1->fetch () ) {
 // $memory = new ami_h_memories ( $id, $couple_id, $ami_h_login_id, $description, $created_date );
