@@ -151,7 +151,15 @@ $app->post ( '/legue', function () use ($app) {
 	$response = $obj->insertLegue ();
 	echoRespnse ( 201, $response );
 } );
-
+/**
+ * add data in legue table
+ */
+$app->get ( '/testCase', function () use ($app) {
+	$response = array ();
+	$obj = new consumeJSON ();
+	$response = $obj->getRowExistance("league", 43);
+	echoRespnse ( 201, $response );
+} );
 /**
  * Verifying required params posted or not
  */

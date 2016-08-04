@@ -8,21 +8,29 @@ class consumeJSON extends DbConnect {
 		$this->db = new DbConnect ();
 		$this->conn = $this->db->connect ();
 	}
+	/**
+	 * insert fixture by teamid and session id
+	 *
+	 * @param unknown $teamId        	
+	 * @param unknown $sessionId        	
+	 * @return boolean[]|NULL[]|boolean[][][]|string[][][]|NULL[][][]
+	 */
 	function insertFixtures($teamId, $sessionId) {
 		$response = array ();
 		$json = file_get_contents ( API_host . 'teams/' . $teamId . '/season/' . $sessionId . '?api_token=' . api_token . "&include=venue" );
 		$obj = json_decode ( $json, true );
 		
 		$temp_res = array ();
+		$temp_res = array ();
 		$q = 0;
+		$e = 0;
 		
-		try {
-			
-			foreach ( $obj ['matches'] ['data'] as $key => $value ) {
-				
+		foreach ( $obj ['matches'] ['data'] as $key => $value ) {
+			try {
 				$fixtures = new fixtures ();
 				$fixtures->api_id = $value ['id'];
 				$fixtures->season_id = $value ['season_id'];
+				$fixtures->competition_id = $value ['competition_id'];
 				$fixtures->match_time = $value ['starting_time'];
 				$fixtures->status = $value ['status'];
 				$fixtures->match_date = $value ['starting_date'];
@@ -38,16 +46,12 @@ class consumeJSON extends DbConnect {
 				$fixtures->ft_score = $value ['ft_score'];
 				$fixtures->et_score = $value ['et_score'];
 				$fixtures->extra_minute = $value ['extra_minute'];
-				
 				$temp_res [$q ++] = $this->insertFixture ( $fixtures );
-				$response ['error'] = false;
-				$response ['result'] = $temp_res;
+			} catch ( Exception $e ) {
 			}
-		} catch ( Exception $e ) {
-			$response ['error'] = true;
-			$response ['msg'] = $e->getMessage();
 		}
-		
+		$response ['error'] = false;
+		$response ['result'] = $temp_res;
 		
 		return $response;
 	}
@@ -62,13 +66,17 @@ class consumeJSON extends DbConnect {
 		$response = array ();
 		$this->conn->autocommit ( false );
 		
-		$sql = "INSERT ignore INTO fixtures (api_id,season_id,match_time, status, match_date, goalsHomeTeam, goalsAwayTeam, homeTeamId, awayTeamId, leagueId, venue, spectators,ht_score,ft_score,et_score,extra_minute ) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?);";
+		if ($this->getRowExistance ( "fixtures", $fixtures->api_id ) ['error']) {
+			$sql = "INSERT ignore INTO fixtures (api_id,season_id,competition_id,match_time, status, match_date, goalsHomeTeam, goalsAwayTeam, homeTeamId, awayTeamId, leagueId, venue, spectators,ht_score,ft_score,et_score,extra_minute ) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?);";
+		} else {
+			$sql = "update fixtures set api_id=?,season_id=?,competition_id=?,match_time=?,status=?,match_date=?,goalsHomeTeam=?,goalsAwayTeam=?,homeTeamId=?,awayTeamId=?,leagueId=?,venue=?,spectators=?,ht_score=?,ft_score=?,et_score=?,extra_minute=? where api_id=" . $fixtures->api_id;
+		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		
 		if ($stmt) {
 			
-			$stmt->bind_param ( "iisssiiiiisisssi", $fixtures->api_id, $fixtures->season_id, $fixtures->match_time, $fixtures->status, $fixtures->match_date, $fixtures->goalsHomeTeam, $fixtures->goalsAwayTeam, $fixtures->homeTeamId, $fixtures->awayTeamId, $fixtures->leagueId, $fixtures->venue, $fixtures->spectators, $fixtures->ht_score, $fixtures->ft_score, $fixtures->et_score, $fixtures->extra_minute );
+			$stmt->bind_param ( "iiisssiiiiisisssi", $fixtures->api_id, $fixtures->season_id, $fixtures->competition_id, $fixtures->match_time, $fixtures->status, $fixtures->match_date, $fixtures->goalsHomeTeam, $fixtures->goalsAwayTeam, $fixtures->homeTeamId, $fixtures->awayTeamId, $fixtures->leagueId, $fixtures->venue, $fixtures->spectators, $fixtures->ht_score, $fixtures->ft_score, $fixtures->et_score, $fixtures->extra_minute );
 			
 			$result = $stmt->execute ();
 			
@@ -77,21 +85,18 @@ class consumeJSON extends DbConnect {
 				$this->conn->commit ();
 				
 				$response ["error"] = false;
-				
 				$response ["msg"] = INSERT_SUCCESS;
 			} else {
 				
 				$response ['error'] = true;
-				
 				$response ['msg'] = INSERT_FAILED;
-				
 				$response ['msgDet'] = $this->conn->error;
 			}
 		} else {
 			
 			$response ['error'] = true;
-			
 			$response ['msg'] = QUERY_EXCEPTION;
+			$response ['msgDet'] = $this->conn->error;
 		}
 		return $response;
 	}
@@ -143,7 +148,11 @@ class consumeJSON extends DbConnect {
 		$response = array ();
 		$this->conn->autocommit ( false );
 		
-		$sql = "INSERT ignore INTO league (api_id,name,is_active) VALUES (?,?,?);";
+		if ($this->getRowExistance ( "league", $legue->api_id ) ['error']) {
+			$sql = "INSERT ignore INTO league (api_id,name,is_active) VALUES (?,?,?);";
+		} else {
+			$sql = "update league set api_id=?,name=?,is_active=? where api_id=" . $legue->api_id . ";";
+		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		
@@ -187,7 +196,11 @@ class consumeJSON extends DbConnect {
 		$response = array ();
 		$this->conn->autocommit ( false );
 		
-		$sql = "INSERT ignore INTO season (api_id,name,is_active,league_id) VALUES (?,?,?,?);";
+		if ($this->getRowExistance ( "season", $season->api_id ) ['error']) {
+			$sql = "INSERT ignore INTO season (api_id,name,is_active,league_id) VALUES (?,?,?,?);";
+		} else {
+			$sql = "update season set api_id=?,name=?,is_active=?,league_id=? where api_id=" . $season->api_id . ";";
+		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		
@@ -230,7 +243,12 @@ class consumeJSON extends DbConnect {
 	function insertTeam(team $team) {
 		$response = array ();
 		$this->conn->autocommit ( false );
-		$sql = "INSERT ignore INTO team (api_id,name,venue,venueCity,imageUrl,logo) VALUES (?,?,?,?,?,?);";
+		if ($this->getRowExistance ( "team", $team->api_id ) ['error']) {
+			$sql = "INSERT ignore INTO team (api_id,name,venue,venueCity,imageUrl,logo) VALUES (?,?,?,?,?,?);";
+		} else {
+			$sql = "update team set api_id=?,name=?,venue=?,venueCity=?,imageUrl=?,logo=? where api_id=" . $team->api_id . ";";
+		}
+		
 		$stmt = $this->conn->prepare ( $sql );
 		if ($stmt) {
 			$stmt->bind_param ( "isssss", $team->api_id, $team->name, $team->venue, $team->venueCity, $team->imageUrl, $team->logo );
@@ -325,7 +343,12 @@ class consumeJSON extends DbConnect {
 	function insertPlayer(player $player) {
 		$response = array ();
 		$this->conn->autocommit ( false );
-		$sql = "INSERT ignore INTO players (api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		if ($this->getRowExistance ( "players", $player->api_id ) ['error']) {
+			$sql = "INSERT ignore INTO players (api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		} else {
+			$sql = "update players set api_id=?, team_id=?, jerseyNumber=?, name=?, position_id=?, position=?, nationality=?, dateOfBirth=?, contractUntil=?, imageUrl=?, country=?, height=?, weight=?, fouls_commited=?, fouls_drawn=?, goals=?, offsides=?, missed_penalties=?, scored_penalties=?, redcards=?, saves=?, shots_total=?, yellowcards=? where api_id=" . $player->api_id . ";";
+		}
+		
 		$stmt = $this->conn->prepare ( $sql );
 		if ($stmt) {
 			$stmt->bind_param ( "iiisissssssssiiiiiiiiii", $player->api_id, $player->team_id, $player->jerseyNumber, $player->name, $player->position_id, $player->position, $player->nationality, $player->dateOfBirth, $player->contractUntil, $player->imageUrl, $player->country, $player->height, $player->weight, $player->fouls_commited, $player->fouls_drawn, $player->goals, $player->offsides, $player->missed_penalties, $player->scored_penalties, $player->redcards, $player->saves, $player->shots_total, $player->yellowcards );
@@ -342,6 +365,7 @@ class consumeJSON extends DbConnect {
 		} else {
 			$response ['error'] = true;
 			$response ['msg'] = QUERY_EXCEPTION;
+			$response ['msgDet'] = $this->conn->error;
 		}
 		return $response;
 	}
@@ -358,21 +382,22 @@ class consumeJSON extends DbConnect {
 		$q = 0;
 		$tempArr = array ();
 		foreach ( $obj ['data'] as $value ) {
+			$player = new player ();
+			$player->api_id = $value ['id'];
+			$player->team_id = $teamId;
+			$player->name = $value ['name'];
+			$player->nationality = $value ['nationality'];
+			$player->dateOfBirth = $value ['birth_date'];
+			$player->country = $value ['birth_place'];
+			$player->height = $value ['height'];
+			$player->weight = $value ['weight'];
+			
 			if (count ( $value ['lineups'] ['lineups'] ) > 0) {
-				$player = new player ();
 				$lineup = $value ['lineups'] ['lineups'];
 				$lineups = $lineup [(count ( $lineup ) - 1)];
 				
-				$player->api_id = $value ['id'];
-				$player->team_id = $teamId;
 				$player->jerseyNumber = $lineups ['shirt_number'];
-				$player->name = $value ['name'];
 				$player->position = $lineups ['position'];
-				$player->nationality = $value ['nationality'];
-				$player->dateOfBirth = $value ['birth_date'];
-				$player->country = $value ['birth_place'];
-				$player->height = $value ['height'];
-				$player->weight = $value ['weight'];
 				$player->fouls_commited = $lineups ['fouls_commited'];
 				$player->fouls_drawn = $lineups ['fouls_drawn'];
 				$player->goals = $lineups ['goals'];
@@ -383,14 +408,11 @@ class consumeJSON extends DbConnect {
 				$player->saves = $lineups ['saves'];
 				$player->shots_total = $lineups ['shots_total'];
 				$player->yellowcards = $lineups ['yellowcards'];
-				
-				$resp ['player'] = $this->insertPlayer ( $player );
-				$tempArr [$q ++] = $resp;
 			} else {
-				$response ['error'] = true;
-				$response ['message'] = DATA_NOT_FOUND;
-				return $response;
 			}
+			
+			$resp ['player'] = $this->insertPlayer ( $player );
+			$tempArr [$q ++] = $resp;
 		}
 		$response ['error'] = false;
 		$response ['result'] = $tempArr;
@@ -458,7 +480,12 @@ class consumeJSON extends DbConnect {
 	function setStandings(leagueStandings $leaguestandings) {
 		$response = array ();
 		$this->conn->autocommit ( false );
-		$sql = "INSERT ignore INTO leaguestandings (api_id, current_round_name, current_round_id, position, points, overall_win, overall_draw, overall_loose, overall_played, overall_goals_attempted, overall_goals_scored, home_win, home_draw, home_loose, home_played, home_goals_attempted, home_goals_scored, away_win, away_draw, away_loose, away_played, away_goals_attempted, away_goals_scored, goal_difference, status, recent_form, result, team_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		if ($this->getRowExistance ( "leaguestandings", $leaguestandings->api_id ) ['error']) {
+			$sql = "INSERT ignore INTO leaguestandings (api_id, current_round_name, current_round_id, position, points, overall_win, overall_draw, overall_loose, overall_played, overall_goals_attempted, overall_goals_scored, home_win, home_draw, home_loose, home_played, home_goals_attempted, home_goals_scored, away_win, away_draw, away_loose, away_played, away_goals_attempted, away_goals_scored, goal_difference, status, recent_form, result, team_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		} else {
+			$sql = "update leaguestandings set api_id=?, current_round_name=?, current_round_id=?, position=?, points=?, overall_win=?, overall_draw=?, overall_loose=?, overall_played=?, overall_goals_attempted=?, overall_goals_scored=?, home_win=?, home_draw=?, home_loose=?, home_played=?, home_goals_attempted=?, home_goals_scored=?, away_win=?, away_draw=?, away_loose=?, away_played=?, away_goals_attempted=?, away_goals_scored=?, goal_difference=?, status=?, recent_form=?, result=?, team_id=? where api_id=" . $leaguestandings->api_id . ";";
+		}
+		
 		$stmt = $this->conn->prepare ( $sql );
 		if ($stmt) {
 			$stmt->bind_param ( "isiiiiiiiiiiiiiiiiiiiiissssi", $leaguestandings->api_id, $leaguestandings->current_round_name, $leaguestandings->current_round_id, $leaguestandings->position, $leaguestandings->points, $leaguestandings->overall_win, $leaguestandings->overall_draw, $leaguestandings->overall_loose, $leaguestandings->overall_played, $leaguestandings->overall_goals_attempted, $leaguestandings->overall_goals_scored, $leaguestandings->home_win, $leaguestandings->home_draw, $leaguestandings->home_loose, $leaguestandings->home_played, $leaguestandings->home_goals_attempted, $leaguestandings->home_goals_scored, $leaguestandings->away_win, $leaguestandings->away_draw, $leaguestandings->away_loose, $leaguestandings->away_played, $leaguestandings->away_goals_attempted, $leaguestandings->away_goals_scored, $leaguestandings->goal_difference, $leaguestandings->status, $leaguestandings->recent_form, $leaguestandings->result, $leaguestandings->team_id );
@@ -475,6 +502,36 @@ class consumeJSON extends DbConnect {
 		} else {
 			$response ['error'] = true;
 			$response ['msg'] = QUERY_EXCEPTION;
+			$response ['msgDet'] = $this->conn->error;
+		}
+		return $response;
+	}
+	/**
+	 * find this apii id already exist in the table or not
+	 *
+	 * @param unknown $table_name        	
+	 * @param unknown $api_id        	
+	 * @return boolean[]|string[]
+	 */
+	function getRowExistance($table_name, $api_id) {
+		$response = array ();
+		$sql = "select * from " . $table_name . " where api_id = ?;";
+		$stmt = $this->conn->prepare ( $sql );
+		if ($stmt) {
+			$stmt->bind_param ( "i", $api_id );
+			$stmt->execute ();
+			$stmt->store_result ();
+			if ($stmt->num_rows () > 0) {
+				$response ['error'] = false;
+				$response ['msg'] = DATA_FOUND;
+			} else {
+				$response ['error'] = true;
+				$response ['msg'] = DATA_NOT_FOUND;
+			}
+		} else {
+			$response ['error'] = true;
+			$response ['msg'] = QUERY_EXCEPTION;
+			$response ['msgDet'] = $this->conn->error;
 		}
 		return $response;
 	}
