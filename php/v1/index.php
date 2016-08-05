@@ -224,8 +224,9 @@ $app->post ( '/legue', function () use ($app) {
  */
 $app->get ( '/testCase', function () use ($app) {
 	$response = array ();
-	$obj = new consumeJSON ();
-	$response = $obj->getRowExistance ( "league", 43 );
+	global $date;
+	$obj = new dboperation();
+	$response = $obj->getFixturesByDate($date,0);
 	echoRespnse ( 201, $response );
 } );
 

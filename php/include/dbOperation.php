@@ -419,8 +419,8 @@ class dboperation extends DbConnect {
 						$fixture->ft_score = $ft_score;
 						$fixture->et_score = $et_score;
 						
-						$fixture->homeTeam = $this->getTeamByTeamId($homeTeamId)['team'];
-						$fixture->awayTeam = $this->getTeamByTeamId($awayTeamId)['team'];
+						$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
+						$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
 						
 						if (array_key_exists ( $match_date, $temparr )) {
 							array_push ( $temparr [$match_date], $fixture );
@@ -448,7 +448,7 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
-
+	
 	// ///////////////////////////////////////////////////////////////////////////////
 	
 	// to get data from team table by teamId////////////////////////////////////
@@ -496,11 +496,11 @@ class dboperation extends DbConnect {
 		return $response;
 	}
 	// ///////////////////////////////////////////////////////////////////////////////
-
+	
 	// /////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * getting legue standings by season id
-	 * 
+	 *
 	 * @param unknown $seasonId        	
 	 * @return boolean[]|string[]|unknown[][][]
 	 */
@@ -546,11 +546,89 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	
+	/**
+	 * get fixture by date
+	 * @param unknown $date
+	 * @return boolean[]|string[]|NULL[]|fixtures[][][]
+	 */
+	function getFixturesByDate($date,$orderby) {
+		$response = array ();
+		if($orderby==1){
+			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date = ? order by match_date";
+		}else{
+			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date = ? order by match_date DESC";
+		}
+		
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		
+		if ($stmt) {
+			$stmt->bind_param ( "s", $date );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $season_id, $competition_id, $match_time, $status, $match_date, $goalsHomeTeam, $goalsAwayTeam, $homeTeamId, $awayTeamId, $leagueId, $venue, $spectators, $extra_minute, $venue_id, $ht_score, $ft_score, $et_score, $league_name );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$fixture = new fixtures ();
+						$fixture->id = $id;
+						$fixture->api_id = $api_id;
+						$fixture->season_id = $season_id;
+						$fixture->competition_id = $competition_id;
+						$fixture->match_time = $match_time;
+						$fixture->status = $status;
+						$fixture->match_date = $match_date;
+						$fixture->goalsHomeTeam = $goalsHomeTeam;
+						$fixture->goalsAwayTeam = $goalsAwayTeam;
+						$fixture->homeTeamId = $homeTeamId;
+						$fixture->awayTeamId = $awayTeamId;
+						$fixture->leagueId = $leagueId;
+						$fixture->venue = $venue;
+						$fixture->spectators = $spectators;
+						$fixture->extra_minute = $extra_minute;
+						$fixture->venue_id = $venue_id;
+						$fixture->ht_score = $ht_score;
+						$fixture->ft_score = $ft_score;
+						$fixture->et_score = $et_score;
+						$fixture->league_name = $league_name;
+						
+						$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
+						$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
+						
+						if (array_key_exists ( $league_name, $temparr )) {
+							array_push ( $temparr [$league_name], $fixture );
+						} else {
+							$temparr [$league_name] = array (
+									$fixture 
+							);
+						}
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['fixtures'] = $temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+				$response ["msgdet"] = $this->conn->error;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+			$response ["msgdet"] = $this->conn->error;
+		}
+		return $response;
+	}
+	
+	// while ( $result = $stmt1->fetch () ) {
+	// $memory = new ami_h_memories ( $id, $couple_id, $ami_h_login_id, $description, $created_date );
+	// $memories [$i] = $memory;
+	// $i ++;
+	// }
 }
-
-// while ( $result = $stmt1->fetch () ) {
-// $memory = new ami_h_memories ( $id, $couple_id, $ami_h_login_id, $description, $created_date );
-// $memories [$i] = $memory;
-// $i ++;
-// }
 ?>
