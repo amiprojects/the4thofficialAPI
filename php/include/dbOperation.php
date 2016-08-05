@@ -398,7 +398,7 @@ class dboperation extends DbConnect {
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					while ( $stmt->fetch () ) {
-						$fixture = new fixtures();
+						$fixture = new fixtures ();
 						$fixture->id = $id;
 						$fixture->api_id = $api_id;
 						$fixture->season_id = $season_id;
@@ -423,7 +423,7 @@ class dboperation extends DbConnect {
 							array_push ( $temparr [$match_date], $fixture );
 						} else {
 							$temparr [$match_date] = array (
-								$fixture 
+									$fixture 
 							);
 						}
 					}
@@ -445,7 +445,55 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
-	// ///////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * getting legue standings by season id
+	 * 
+	 * @param unknown $seasonId        	
+	 * @return boolean[]|string[]|unknown[][][]
+	 */
+	function getStandingsBySeasonId($seasonId) {
+		$response = array ();
+		$sql = "SELECT t.name as team_name, t.logo, st.overall_played, st.overall_goals_scored, st.points, st.goal_difference FROM leaguestandings st, team t WHERE t.api_id=st.team_id and st.season_id=? ORDER by st.position";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		$q = 0;
+		
+		if ($stmt) {
+			$stmt->bind_param ( "i", $seasonId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $team_name, $logo, $overall_played, $overall_goals_scored, $points, $goal_difference );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$temp = array ();
+						$temp ['team_name'] = $team_name;
+						$temp ['logo'] = $logo;
+						$temp ['overall_played'] = $overall_played;
+						$temp ['overall_goals_scored'] = $overall_goals_scored;
+						$temp ['points'] = $points;
+						$temp ['goal_difference'] = $goal_difference;
+						$temparr [$q ++] = $temp;
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['data'] = $temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
 }
 
 // while ( $result = $stmt1->fetch () ) {

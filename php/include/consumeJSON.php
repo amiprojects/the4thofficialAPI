@@ -435,6 +435,7 @@ class consumeJSON extends DbConnect {
 			$leaguestandings = new leagueStandings ();
 			
 			$leaguestandings->api_id = $value ['id'];
+			$leaguestandings->season_id=$seasonId;
 			$leaguestandings->current_round_name = $value ['current_round_name'];
 			$leaguestandings->current_round_id = $value ['current_round_id'];
 			$leaguestandings->position = $value ['position'];
@@ -481,14 +482,14 @@ class consumeJSON extends DbConnect {
 		$response = array ();
 		$this->conn->autocommit ( false );
 		if ($this->getRowExistance ( "leaguestandings", $leaguestandings->api_id ) ['error']) {
-			$sql = "INSERT ignore INTO leaguestandings (api_id, current_round_name, current_round_id, position, points, overall_win, overall_draw, overall_loose, overall_played, overall_goals_attempted, overall_goals_scored, home_win, home_draw, home_loose, home_played, home_goals_attempted, home_goals_scored, away_win, away_draw, away_loose, away_played, away_goals_attempted, away_goals_scored, goal_difference, status, recent_form, result, team_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+			$sql = "INSERT ignore INTO leaguestandings (api_id,season_id, current_round_name, current_round_id, position, points, overall_win, overall_draw, overall_loose, overall_played, overall_goals_attempted, overall_goals_scored, home_win, home_draw, home_loose, home_played, home_goals_attempted, home_goals_scored, away_win, away_draw, away_loose, away_played, away_goals_attempted, away_goals_scored, goal_difference, status, recent_form, result, team_id) VALUES ( ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		} else {
-			$sql = "update leaguestandings set api_id=?, current_round_name=?, current_round_id=?, position=?, points=?, overall_win=?, overall_draw=?, overall_loose=?, overall_played=?, overall_goals_attempted=?, overall_goals_scored=?, home_win=?, home_draw=?, home_loose=?, home_played=?, home_goals_attempted=?, home_goals_scored=?, away_win=?, away_draw=?, away_loose=?, away_played=?, away_goals_attempted=?, away_goals_scored=?, goal_difference=?, status=?, recent_form=?, result=?, team_id=? where api_id=" . $leaguestandings->api_id . ";";
+			$sql = "update leaguestandings set api_id=?, season_id=?, current_round_name=?, current_round_id=?, position=?, points=?, overall_win=?, overall_draw=?, overall_loose=?, overall_played=?, overall_goals_attempted=?, overall_goals_scored=?, home_win=?, home_draw=?, home_loose=?, home_played=?, home_goals_attempted=?, home_goals_scored=?, away_win=?, away_draw=?, away_loose=?, away_played=?, away_goals_attempted=?, away_goals_scored=?, goal_difference=?, status=?, recent_form=?, result=?, team_id=? where api_id=" . $leaguestandings->api_id . ";";
 		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		if ($stmt) {
-			$stmt->bind_param ( "isiiiiiiiiiiiiiiiiiiiiissssi", $leaguestandings->api_id, $leaguestandings->current_round_name, $leaguestandings->current_round_id, $leaguestandings->position, $leaguestandings->points, $leaguestandings->overall_win, $leaguestandings->overall_draw, $leaguestandings->overall_loose, $leaguestandings->overall_played, $leaguestandings->overall_goals_attempted, $leaguestandings->overall_goals_scored, $leaguestandings->home_win, $leaguestandings->home_draw, $leaguestandings->home_loose, $leaguestandings->home_played, $leaguestandings->home_goals_attempted, $leaguestandings->home_goals_scored, $leaguestandings->away_win, $leaguestandings->away_draw, $leaguestandings->away_loose, $leaguestandings->away_played, $leaguestandings->away_goals_attempted, $leaguestandings->away_goals_scored, $leaguestandings->goal_difference, $leaguestandings->status, $leaguestandings->recent_form, $leaguestandings->result, $leaguestandings->team_id );
+			$stmt->bind_param ( "iisiiiiiiiiiiiiiiiiiiiiissssi", $leaguestandings->api_id, $leaguestandings->season_id, $leaguestandings->current_round_name, $leaguestandings->current_round_id, $leaguestandings->position, $leaguestandings->points, $leaguestandings->overall_win, $leaguestandings->overall_draw, $leaguestandings->overall_loose, $leaguestandings->overall_played, $leaguestandings->overall_goals_attempted, $leaguestandings->overall_goals_scored, $leaguestandings->home_win, $leaguestandings->home_draw, $leaguestandings->home_loose, $leaguestandings->home_played, $leaguestandings->home_goals_attempted, $leaguestandings->home_goals_scored, $leaguestandings->away_win, $leaguestandings->away_draw, $leaguestandings->away_loose, $leaguestandings->away_played, $leaguestandings->away_goals_attempted, $leaguestandings->away_goals_scored, $leaguestandings->goal_difference, $leaguestandings->status, $leaguestandings->recent_form, $leaguestandings->result, $leaguestandings->team_id );
 			$result = $stmt->execute ();
 			if ($result) {
 				$this->conn->commit ();

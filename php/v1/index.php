@@ -137,9 +137,9 @@ $app->get ( '/team/:name', function ($name) use ($app) {
 
 // to get position wise data from players table by team_name/////////////////////
 // $app->get ( '/playersByTeamName/:teamName', function ($teamName) use ($app) {
-// 	$obj = new dboperation ();
-// 	$teamId = $obj->getTeamByTeamName ( $teamName )['team']->api_id;
-// 	echoRespnse ( 202, $obj->getPositionWisePlayersByTeamId ( $teamId ) );
+// $obj = new dboperation ();
+// $teamId = $obj->getTeamByTeamName ( $teamName )['team']->api_id;
+// echoRespnse ( 202, $obj->getPositionWisePlayersByTeamId ( $teamId ) );
 // } );
 // //////////////////////////////////////////////////////////////////////////////
 
@@ -174,6 +174,17 @@ $app->get ( '/fixture/:leagueSlug', function ($leagueSlug) use ($app) {
 // //////////////////////////////////////////////////////////////////////////////
 
 /**
+ * get standings by season id
+ * 
+ */
+$app->get ( '/standings/season/:id', function ($id) use ($app) {
+	$response = array ();
+	$obj = new dboperation();
+	$response = $obj->getStandingsBySeasonId($id);
+	echoRespnse ( 201, $response );
+} );
+
+/**
  * *******************API for match details************************
  */
 /**
@@ -196,15 +207,17 @@ $app->post ( '/legue', function () use ($app) {
 	$response = $obj->insertLegue ();
 	echoRespnse ( 201, $response );
 } );
+
 /**
  * add data in legue table
  */
 $app->get ( '/testCase', function () use ($app) {
 	$response = array ();
 	$obj = new consumeJSON ();
-	$response = $obj->getRowExistance("league", 43);
+	$response = $obj->getRowExistance ( "league", 43 );
 	echoRespnse ( 201, $response );
 } );
+
 /**
  * Verifying required params posted or not
  */

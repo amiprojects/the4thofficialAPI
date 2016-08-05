@@ -86,6 +86,7 @@ class player {
 class leagueStandings {
 	public $id;
 	public $api_id;
+	public $season_id;
 	public $current_round_name;
 	public $current_round_id;
 	public $position;
