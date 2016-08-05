@@ -184,14 +184,21 @@ $app->get ( '/teamByTeamId/:id', function ($id) use ($app) {
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
+// to get data from statdings table by leagueSlug////////////////////////////////////
+$app->get ( '/standingsByLeagueSlug/:slug', function ($slug) use ($app) {
+	$obj = new dboperation ();
+	$leagueId = $obj->getLeagueSlugBySlug ( $slug )['league_slug']->league_id;
+	$seasonId = $obj->getLastSeasonByleagueId ( $leagueId ) ['season']->api_id;
+	echoRespnse ( 202, $obj->getStandingsBySeasonId ( $seasonId ) );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
 /**
  * get standings by season id
- * 
  */
 $app->get ( '/standings/season/:id', function ($id) use ($app) {
 	$response = array ();
-	$obj = new dboperation();
-	$response = $obj->getStandingsBySeasonId($id);
+	$obj = new dboperation ();
+	$response = $obj->getStandingsBySeasonId ( $id );
 	echoRespnse ( 201, $response );
 } );
 
