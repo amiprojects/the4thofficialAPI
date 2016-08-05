@@ -48,6 +48,18 @@ $app->post ( '/test', function () use ($app) {
 	$response ["my_array2"] = $myArray2;
 	echoRespnse ( 201, $response );
 } );
+
+// $app->get ( '/team/:name', function ($name) use ($app) {
+// $a = $app->request->get ( 'name' );
+// $obj = new dboperation ();
+// echoRespnse ( 202, $obj->getTeamByTeamName ( $a ) );
+// } );
+
+// $app->get ( '/team/', function () use ($app) {
+// $a = $app->request->get ( 'name' );
+// $obj = new dboperation ();
+// echoRespnse ( 202, $obj->getTeamByTeamName ( $a ) );
+// } );
 // ///////////////////////////////////////////////////////////////////////////////
 
 // for data inserting or ignoring into install_device table///////////////////////
@@ -135,43 +147,42 @@ $app->get ( '/team/:name', function ($name) use ($app) {
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
-// to get position wise data from players table by team_name/////////////////////
-// $app->get ( '/playersByTeamName/:teamName', function ($teamName) use ($app) {
-// 	$obj = new dboperation ();
-// 	$teamId = $obj->getTeamByTeamName ( $teamName )['team']->api_id;
-// 	echoRespnse ( 202, $obj->getPositionWisePlayersByTeamId ( $teamId ) );
-// } );
-// //////////////////////////////////////////////////////////////////////////////
-
 // to get data from league_slug table by slug////////////////////////////////////
-$app->get ( '/league_slug/slug/:slug', function ($slug) use ($app) {
+$app->get ( '/league_slugBySlug/:slug', function ($slug) use ($app) {
 	$obj = new dboperation ();
 	echoRespnse ( 202, $obj->getLeagueSlugBySlug ( $slug ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
 // to get last data from season table by leagueId////////////////////////////////////
-$app->get ( '/season/league/:id', function ($id) use ($app) {
+$app->get ( '/seasonByLeagueId/:id', function ($id) use ($app) {
 	$obj = new dboperation ();
 	echoRespnse ( 202, $obj->getLastSeasonByleagueId ( $id ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
 // to get date wise data from fixture table by league_id and season_id////////////
-$app->get ( '/fixture/:leagueId/:seasonId', function ($leagueId, $seasonId) use ($app) {
+$app->get ( '/fixtureByLeagueIdAndSeasonId/:leagueId/:seasonId', function ($leagueId, $seasonId) use ($app) {
 	$obj = new dboperation ();
 	echoRespnse ( 202, $obj->getDateWiseFixturesByLeagueIdAndSeasonId ( $leagueId, $seasonId ) );
 } );
 // //////////////////////////////////////////////////////////////////////////////
 
 // to get date wise data from fixture table by league's slug/////////////////////
-$app->get ( '/fixture/:leagueSlug', function ($leagueSlug) use ($app) {
+$app->get ( '/dateWiseFixtureByLeagueSlug/:leagueSlug', function ($leagueSlug) use ($app) {
 	$obj = new dboperation ();
 	$leagueId = $obj->getLeagueSlugBySlug ( $leagueSlug ) ['league_slug']->league_id;
 	$seasonId = $obj->getLastSeasonByleagueId ( $leagueId ) ['season']->api_id;
 	echoRespnse ( 202, $obj->getDateWiseFixturesByLeagueIdAndSeasonId ( $leagueId, $seasonId ) );
 } );
 // //////////////////////////////////////////////////////////////////////////////
+
+// to get data from team table by teamId////////////////////////////////////
+$app->get ( '/teamByTeamId/:id', function ($id) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getTeamByTeamId ( $id ) );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
 
 /**
  * *******************API for match details************************
@@ -202,7 +213,7 @@ $app->post ( '/legue', function () use ($app) {
 $app->get ( '/testCase', function () use ($app) {
 	$response = array ();
 	$obj = new consumeJSON ();
-	$response = $obj->getRowExistance("league", 43);
+	$response = $obj->getRowExistance ( "league", 43 );
 	echoRespnse ( 201, $response );
 } );
 /**

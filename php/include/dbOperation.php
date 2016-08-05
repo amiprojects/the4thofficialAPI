@@ -398,7 +398,7 @@ class dboperation extends DbConnect {
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					while ( $stmt->fetch () ) {
-						$fixture = new fixtures();
+						$fixture = new fixtures ();
 						$fixture->id = $id;
 						$fixture->api_id = $api_id;
 						$fixture->season_id = $season_id;
@@ -419,11 +419,14 @@ class dboperation extends DbConnect {
 						$fixture->ft_score = $ft_score;
 						$fixture->et_score = $et_score;
 						
+						$fixture->homeTeam = $this->getTeamByTeamId($homeTeamId)['team'];
+						$fixture->awayTeam = $this->getTeamByTeamId($awayTeamId)['team'];
+						
 						if (array_key_exists ( $match_date, $temparr )) {
 							array_push ( $temparr [$match_date], $fixture );
 						} else {
 							$temparr [$match_date] = array (
-								$fixture 
+									$fixture 
 							);
 						}
 					}
@@ -431,6 +434,52 @@ class dboperation extends DbConnect {
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ['fixtures'] = $temparr;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from team table by teamId////////////////////////////////////
+	function getTeamByTeamId($teamId) {
+		$response = array ();
+		$sql = "SELECT id, api_id, name, venue, venueCity, imageUrl, logo FROM team WHERE api_id=?";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		
+		if ($stmt) {
+			$stmt->bind_param ( "i", $teamId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $name, $venue, $venueCity, $imageUrl, $logo );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$team = new team ();
+						$team->id = $id;
+						$team->api_id = $api_id;
+						$team->name = $name;
+						$team->venue = $venue;
+						$team->venueCity = $venueCity;
+						$team->imageUrl = $imageUrl;
+						$team->logo = $logo;
+						
+						$temparr = $team;
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['team'] = $temparr;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
