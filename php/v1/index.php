@@ -147,14 +147,6 @@ $app->get ( '/team/:name', function ($name) use ($app) {
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
-// to get position wise data from players table by team_name/////////////////////
-// $app->get ( '/playersByTeamName/:teamName', function ($teamName) use ($app) {
-// $obj = new dboperation ();
-// $teamId = $obj->getTeamByTeamName ( $teamName )['team']->api_id;
-// echoRespnse ( 202, $obj->getPositionWisePlayersByTeamId ( $teamId ) );
-// } );
-// //////////////////////////////////////////////////////////////////////////////
-
 // to get data from league_slug table by slug////////////////////////////////////
 $app->get ( '/league_slugBySlug/:slug', function ($slug) use ($app) {
 	$obj = new dboperation ();
