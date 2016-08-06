@@ -14,6 +14,11 @@ date_default_timezone_set ( 'Asia/Kolkata' );
 global $date;
 $date = date ( "Y-m-d" );
 
+$app->get('/serverdate',function()use($app){
+	global $date;
+	echoRespnse(200, array("date"=>$date));
+});
+
 // for testing///////////////////////////////////////////////////////////////////
 $app->post ( '/test', function () use ($app) {
 	$response = array ();
@@ -236,11 +241,14 @@ $app->post ( '/legue', function () use ($app) {
 /**
  * add data in legue table
  */
-$app->get ( '/testCase', function () use ($app) {
+$app->get ( '/fixtues/:startDate/:endDate', function ($startDate,$endDate) use ($app) {
 	$response = array ();
-	global $date;
-	$obj = new dboperation ();
-	$response = $obj->getFixturesByDate ( $date, 0 );
+	verifyRequiredParams(array("order_sequence"));
+	
+	$val=$app->request->get("order_sequence");
+	
+	$obj = new dboperation();
+	$response = $obj->getFixturesByDate($startDate,$endDate,$val);
 	echoRespnse ( 201, $response );
 } );
 

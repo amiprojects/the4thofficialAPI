@@ -38,5 +38,6 @@ define ( 'DEVICE_ID', 'device id' );
 define ( "DEVICE_NOT_FOUND", "No device found with this device id" );
 define ( "DATA_FOUND", "Data found" );
 define ( "DATA_NOT_FOUND", "No data found" );
+define("ORDER_SEQUENCE", "Order sequence")
 
 ?>
