@@ -552,19 +552,19 @@ class dboperation extends DbConnect {
 	 * @param unknown $date
 	 * @return boolean[]|string[]|NULL[]|fixtures[][][]
 	 */
-	function getFixturesByDate($date,$orderby) {
+	function getFixturesByDate($startDate,$endDate,$orderby) {
 		$response = array ();
 		if($orderby==1){
-			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date = ? order by match_date";
+			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date";
 		}else{
-			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date = ? order by match_date DESC";
+			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date DESC";
 		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		$temparr = array ();
 		
 		if ($stmt) {
-			$stmt->bind_param ( "s", $date );
+			$stmt->bind_param ( "ss", $startDate,$endDate );
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
 				$stmt->bind_result ( $id, $api_id, $season_id, $competition_id, $match_time, $status, $match_date, $goalsHomeTeam, $goalsAwayTeam, $homeTeamId, $awayTeamId, $leagueId, $venue, $spectators, $extra_minute, $venue_id, $ht_score, $ft_score, $et_score, $league_name );
@@ -596,18 +596,35 @@ class dboperation extends DbConnect {
 						$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
 						$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
 						
-						if (array_key_exists ( $league_name, $temparr )) {
-							array_push ( $temparr [$league_name], $fixture );
+						if (array_key_exists ( $match_date, $temparr )) {
+							array_push ( $temparr [$match_date], $fixture );
 						} else {
-							$temparr [$league_name] = array (
+							$temparr [$match_date] = array (
 									$fixture 
 							);
 						}
 					}
 					
+					$temparr2=$temparr;
+					
+					foreach ($temparr as $val=>$key){
+						$temp=array();
+						//echo $val;
+						foreach ($temparr[$val] as $fix){
+							if (array_key_exists ( $fix->league_name, $temp )) {
+								array_push ( $temp [$fix->league_name], $fix );
+							} else {
+								$temp [$fix->league_name] = array (
+										$fix
+								);
+							}
+						}
+						$temparr2[$val]=$temp;
+					}
+					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
-					$response ['fixtures'] = $temparr;
+					$response ['fixtures'] = $temparr2;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
