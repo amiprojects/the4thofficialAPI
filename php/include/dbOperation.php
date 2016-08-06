@@ -549,14 +549,15 @@ class dboperation extends DbConnect {
 	
 	/**
 	 * get fixture by date
-	 * @param unknown $date
+	 * 
+	 * @param unknown $date        	
 	 * @return boolean[]|string[]|NULL[]|fixtures[][][]
 	 */
-	function getFixturesByDate($date,$orderby) {
+	function getFixturesByDate($date, $orderby) {
 		$response = array ();
-		if($orderby==1){
+		if ($orderby == 1) {
 			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date = ? order by match_date";
-		}else{
+		} else {
 			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date = ? order by match_date DESC";
 		}
 		
@@ -624,6 +625,66 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	
+	// to get data from players table by player_id////////////////////////////////////
+	function getPlayerDetailsByPlayerId($playerId) {
+		$response = array ();
+		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where api_id=?";
+		$stmt = $this->conn->prepare ( $sql );
+		
+		if ($stmt) {
+			$stmt->bind_param ( "i", $playerId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$player = new player ();
+						$player->id = $id;
+						$player->api_id = $api_id;
+						$player->team_id = $team_id;
+						$player->jerseyNumber = $jerseyNumber;
+						$player->name = $name;
+						$player->position_id = $position_id;
+						$player->position = $position;
+						$player->nationality = $nationality;
+						$player->dateOfBirth = $dateOfBirth;
+						$player->contractUntil = $contractUntil;
+						$player->imageUrl = $imageUrl;
+						$player->country = $country;
+						$player->height = $height;
+						$player->weight = $weight;
+						$player->fouls_commited = $fouls_commited;
+						$player->fouls_drawn = $fouls_drawn;
+						$player->goals = $goals;
+						$player->offsides = $offsides;
+						$player->missed_penalties = $missed_penalties;
+						$player->scored_penalties = $scored_penalties;
+						$player->redcards = $redcards;
+						$player->saves = $saves;
+						$player->shots_total = $shots_total;
+						$player->yellowcards = $yellowcards;
+					}
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['Player'] = $player;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
 	
 	// while ( $result = $stmt1->fetch () ) {
 	// $memory = new ami_h_memories ( $id, $couple_id, $ami_h_login_id, $description, $created_date );

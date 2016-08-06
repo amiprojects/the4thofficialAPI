@@ -187,9 +187,16 @@ $app->get ( '/teamByTeamId/:id', function ($id) use ($app) {
 // to get data from statdings table by leagueSlug////////////////////////////////////
 $app->get ( '/standingsByLeagueSlug/:slug', function ($slug) use ($app) {
 	$obj = new dboperation ();
-	$leagueId = $obj->getLeagueSlugBySlug ( $slug )['league_slug']->league_id;
+	$leagueId = $obj->getLeagueSlugBySlug ( $slug ) ['league_slug']->league_id;
 	$seasonId = $obj->getLastSeasonByleagueId ( $leagueId ) ['season']->api_id;
 	echoRespnse ( 202, $obj->getStandingsBySeasonId ( $seasonId ) );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
+// to get data from players table by player_id////////////////////////////////////
+$app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getPlayerDetailsByPlayerId ( $id ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 /**
@@ -232,8 +239,8 @@ $app->post ( '/legue', function () use ($app) {
 $app->get ( '/testCase', function () use ($app) {
 	$response = array ();
 	global $date;
-	$obj = new dboperation();
-	$response = $obj->getFixturesByDate($date,0);
+	$obj = new dboperation ();
+	$response = $obj->getFixturesByDate ( $date, 0 );
 	echoRespnse ( 201, $response );
 } );
 
