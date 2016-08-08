@@ -14,10 +14,12 @@ date_default_timezone_set ( 'Asia/Kolkata' );
 global $date;
 $date = date ( "Y-m-d" );
 
-$app->get('/serverdate',function()use($app){
+$app->get ( '/serverdate', function () use ($app) {
 	global $date;
-	echoRespnse(200, array("date"=>$date));
-});
+	echoRespnse ( 200, array (
+			"date" => $date 
+	) );
+} );
 
 // for testing///////////////////////////////////////////////////////////////////
 $app->post ( '/test', function () use ($app) {
@@ -204,6 +206,29 @@ $app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
 	echoRespnse ( 202, $obj->getPlayerDetailsByPlayerId ( $id ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
+
+// for push notification///////////////////////////////////////////////////////////
+$app->get ( '/push', function () use ($app) {
+	// $to = "fBcVtujtxdk:APA91bFIND4QSnS4e1z3dLj7lxzWXHMHNJHOAERhkcmh6Pna3uNId_EqEBmkWQGmrGrPiYebxQpCVWeqT6YLZ8xFIUzX8QK1F53rSG3E0SCaR-mNoTRdvQOxe9l5Evm8DwNcUwoqbIw_";
+	$to = array (
+			"fBcVtujtxdk:APA91bFIND4QSnS4e1z3dLj7lxzWXHMHNJHOAERhkcmh6Pna3uNId_EqEBmkWQGmrGrPiYebxQpCVWeqT6YLZ8xFIUzX8QK1F53rSG3E0SCaR-mNoTRdvQOxe9l5Evm8DwNcUwoqbIw_",
+			"cqdGM33hGZ8:APA91bHWYv0ml0szFdsLnxsHiW8u3USMEL5N0mtdhn8RNf-1-vJIGM5rrtmkFmKxNq7ApSekdr_Q6zEPIuYSKvnE0hS6sCUTVAc36og0gqf-d1DKIKojIxI8ufE4RwDkq1Rmmfxc-0Ax" 
+	);
+	$title = "Latest news";
+	$message = "Hello";
+	$obj = new dboperation ();
+	$response = $obj->sendPush ( $to, $title, $message );
+	echoRespnse ( 201, $response );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
+// to get data from players table by player_id////////////////////////////////////
+$app->get ( '/getAllDevice/', function () use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getAllDevice (  ) );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * get standings by season id
  */
@@ -241,14 +266,16 @@ $app->post ( '/legue', function () use ($app) {
 /**
  * add data in legue table
  */
-$app->get ( '/fixtues/:startDate/:endDate', function ($startDate,$endDate) use ($app) {
+$app->get ( '/fixtues/:startDate/:endDate', function ($startDate, $endDate) use ($app) {
 	$response = array ();
-	verifyRequiredParams(array("order_sequence"));
+	verifyRequiredParams ( array (
+			"order_sequence" 
+	) );
 	
-	$val=$app->request->get("order_sequence");
+	$val = $app->request->get ( "order_sequence" );
 	
-	$obj = new dboperation();
-	$response = $obj->getFixturesByDate($startDate,$endDate,$val);
+	$obj = new dboperation ();
+	$response = $obj->getFixturesByDate ( $startDate, $endDate, $val );
 	echoRespnse ( 201, $response );
 } );
 

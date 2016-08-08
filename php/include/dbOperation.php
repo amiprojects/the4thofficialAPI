@@ -183,7 +183,7 @@ class dboperation extends DbConnect {
 	// to get position wise data from players table by team_id////////////////////////////////////
 	function getPositionWisePlayersByTeamId($teamId) {
 		$response = array ();
-		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where team_id=?";
+		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards, shots_on_goal, assists from players where team_id=?";
 		$stmt = $this->conn->prepare ( $sql );
 		$temparr = array ();
 		
@@ -191,7 +191,7 @@ class dboperation extends DbConnect {
 			$stmt->bind_param ( "i", $teamId );
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
-				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards );
+				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards, $shots_on_goal, $assists );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					while ( $stmt->fetch () ) {
@@ -220,6 +220,8 @@ class dboperation extends DbConnect {
 						$player->saves = $saves;
 						$player->shots_total = $shots_total;
 						$player->yellowcards = $yellowcards;
+						$player->shots_on_goal = $shots_on_goal;
+						$player->assists = $assists;
 						
 						if (array_key_exists ( $position, $temparr )) {
 							array_push ( $temparr [$position], $player );
@@ -549,16 +551,15 @@ class dboperation extends DbConnect {
 	
 	/**
 	 * get fixture by date
-	 * 
+	 *
 	 * @param unknown $date        	
 	 * @return boolean[]|string[]|NULL[]|fixtures[][][]
 	 */
-
-	function getFixturesByDate($startDate,$endDate,$orderby) {
+	function getFixturesByDate($startDate, $endDate, $orderby) {
 		$response = array ();
-		if($orderby==1){
+		if ($orderby == 1) {
 			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date";
-		}else{
+		} else {
 			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date DESC";
 		}
 		
@@ -566,7 +567,7 @@ class dboperation extends DbConnect {
 		$temparr = array ();
 		
 		if ($stmt) {
-			$stmt->bind_param ( "ss", $startDate,$endDate );
+			$stmt->bind_param ( "ss", $startDate, $endDate );
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
 				$stmt->bind_result ( $id, $api_id, $season_id, $competition_id, $match_time, $status, $match_date, $goalsHomeTeam, $goalsAwayTeam, $homeTeamId, $awayTeamId, $leagueId, $venue, $spectators, $extra_minute, $venue_id, $ht_score, $ft_score, $et_score, $league_name );
@@ -607,21 +608,21 @@ class dboperation extends DbConnect {
 						}
 					}
 					
-					$temparr2=$temparr;
+					$temparr2 = $temparr;
 					
-					foreach ($temparr as $val=>$key){
-						$temp=array();
-						//echo $val;
-						foreach ($temparr[$val] as $fix){
+					foreach ( $temparr as $val => $key ) {
+						$temp = array ();
+						// echo $val;
+						foreach ( $temparr [$val] as $fix ) {
 							if (array_key_exists ( $fix->league_name, $temp )) {
 								array_push ( $temp [$fix->league_name], $fix );
 							} else {
 								$temp [$fix->league_name] = array (
-										$fix
+										$fix 
 								);
 							}
 						}
-						$temparr2[$val]=$temp;
+						$temparr2 [$val] = $temp;
 					}
 					
 					$response ["error"] = false;
@@ -647,14 +648,14 @@ class dboperation extends DbConnect {
 	// to get data from players table by player_id////////////////////////////////////
 	function getPlayerDetailsByPlayerId($playerId) {
 		$response = array ();
-		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards from players where api_id=?";
+		$sql = "select id, api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards, shots_on_goal, assists from players where api_id=?";
 		$stmt = $this->conn->prepare ( $sql );
 		
 		if ($stmt) {
 			$stmt->bind_param ( "i", $playerId );
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
-				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards );
+				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards, $shots_on_goal, $assists );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					while ( $stmt->fetch () ) {
@@ -683,11 +684,93 @@ class dboperation extends DbConnect {
 						$player->saves = $saves;
 						$player->shots_total = $shots_total;
 						$player->yellowcards = $yellowcards;
+						$player->shots_on_goal = $shots_on_goal;
+						$player->assists = $assists;
 					}
 					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ['Player'] = $player;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// push///////////////////////////////////////////////////////////////////////////
+	function sendPush($to, $title, $message) {
+		// API access key from Google API's Console
+		// replace API
+		define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
+		$registrationIds = $to;
+		// $registrationIds = array (
+		// $to
+		// );
+		$msg = array (
+				'message' => $message,
+				'title' => $title,
+				'vibrate' => 1,
+				'sound' => 1 
+		);
+		// you can also add images, additionalData
+		
+		$fields = array (
+				'registration_ids' => $registrationIds,
+				'data' => $msg 
+		);
+		$headers = array (
+				'Authorization: key=' . API_ACCESS_KEY,
+				'Content-Type: application/json' 
+		);
+		$ch = curl_init ();
+		curl_setopt ( $ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
+		curl_setopt ( $ch, CURLOPT_POST, true );
+		curl_setopt ( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false );
+		curl_setopt ( $ch, CURLOPT_POSTFIELDS, json_encode ( $fields ) );
+		$result = curl_exec ( $ch );
+		curl_close ( $ch );
+		echo $result;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get all data from install_device table////////////////////////////////////
+	function getAllDevice() {
+		$response = array ();
+		$sql = "SELECT id,device_id,install_date FROM install_device;";
+		$stmt = $this->conn->prepare ( $sql );
+		
+		$temparr = array ();
+		
+		if ($stmt) {
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$num_rows = $stmt->num_rows;
+				$inst_dvc = new install_device ();
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$stmt->bind_result ( $id, $device_id, $install_date );
+						$stmt->fetch ();
+						$inst_dvc->id = $id;
+						$inst_dvc->device_id = $device_id;
+						$inst_dvc->install_date = $install_date;
+						
+						array_push ( $temparr, $inst_dvc );
+					}
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["device"] = $temparr;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;

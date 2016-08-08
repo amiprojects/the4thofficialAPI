@@ -82,6 +82,8 @@ class player {
 	public $saves;
 	public $shots_total;
 	public $yellowcards;
+	public $shots_on_goal;
+	public $assists;
 }
 class leagueStandings {
 	public $id;
