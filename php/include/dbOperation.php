@@ -313,8 +313,7 @@ class dboperation extends DbConnect {
 					while ( $stmt->fetch () ) {
 						$league_slug = new league_slug ();
 						$league_slug->slug = $slug;
-						$league_slug->league_id = $league_id;
-						
+						$league_slug->league_id = $league_id;						
 						// array_push ( $temparr, $league_slug );
 						$temparr = $league_slug;
 					}
