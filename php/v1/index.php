@@ -209,6 +209,7 @@ $app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
 
 // for push notification///////////////////////////////////////////////////////////
 $app->get ( '/push', function () use ($app) {
+	$response = array ();
 	// $to = "fBcVtujtxdk:APA91bFIND4QSnS4e1z3dLj7lxzWXHMHNJHOAERhkcmh6Pna3uNId_EqEBmkWQGmrGrPiYebxQpCVWeqT6YLZ8xFIUzX8QK1F53rSG3E0SCaR-mNoTRdvQOxe9l5Evm8DwNcUwoqbIw_";
 	$to = array (
 			"fBcVtujtxdk:APA91bFIND4QSnS4e1z3dLj7lxzWXHMHNJHOAERhkcmh6Pna3uNId_EqEBmkWQGmrGrPiYebxQpCVWeqT6YLZ8xFIUzX8QK1F53rSG3E0SCaR-mNoTRdvQOxe9l5Evm8DwNcUwoqbIw_",
@@ -224,8 +225,10 @@ $app->get ( '/push', function () use ($app) {
 
 // to get data from players table by player_id////////////////////////////////////
 $app->get ( '/getAllDevice/', function () use ($app) {
+	$response = array ();
 	$obj = new dboperation ();
-	echoRespnse ( 202, $obj->getAllDevice (  ) );
+	$response = $obj->getAllInstalledDevice ();
+	echoRespnse ( 202, $response );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 

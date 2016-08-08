@@ -315,7 +315,8 @@ class dboperation extends DbConnect {
 					while ( $stmt->fetch () ) {
 						$league_slug = new league_slug ();
 						$league_slug->slug = $slug;
-						$league_slug->league_id = $league_id;						
+						$league_slug->league_id = $league_id;
+						
 						// array_push ( $temparr, $league_slug );
 						$temparr = $league_slug;
 					}
@@ -711,7 +712,11 @@ class dboperation extends DbConnect {
 		// API access key from Google API's Console
 		// replace API
 		define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
-		$registrationIds = $to;
+		
+		$registrationIds = $this->getAllInstalledDevice()["allDevId"];
+		
+		//$registrationIds = $to;
+		
 		// $registrationIds = array (
 		// $to
 		// );
@@ -745,31 +750,34 @@ class dboperation extends DbConnect {
 	// ///////////////////////////////////////////////////////////////////////////////
 	
 	// to get all data from install_device table////////////////////////////////////
-	function getAllDevice() {
+	function getAllInstalledDevice() {
 		$response = array ();
 		$sql = "SELECT id,device_id,install_date FROM install_device;";
 		$stmt = $this->conn->prepare ( $sql );
 		
 		$temparr = array ();
+		$allDevId = array ();
 		
+		$q=0;
 		if ($stmt) {
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
+				$stmt->bind_result ( $id, $device_id, $install_date );
 				$num_rows = $stmt->num_rows;
-				$inst_dvc = new install_device ();
-				if ($num_rows > 0) {
-					while ( $stmt->fetch () ) {
-						$stmt->bind_result ( $id, $device_id, $install_date );
-						$stmt->fetch ();
+				$inst_dvc = new install_device ();				
+				if ($num_rows > 0) {					
+					while ( $stmt->fetch () ) {						
+						$inst_dvc = new install_device();
 						$inst_dvc->id = $id;
 						$inst_dvc->device_id = $device_id;
 						$inst_dvc->install_date = $install_date;
-						
 						array_push ( $temparr, $inst_dvc );
+						array_push($allDevId, $device_id);
 					}
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ["device"] = $temparr;
+					$response["allDevId"]=$allDevId;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
