@@ -208,24 +208,40 @@ $app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
 // ///////////////////////////////////////////////////////////////////////////////
 
 // for push notification///////////////////////////////////////////////////////////
-$app->get ( '/push', function () use ($app) {
-	// $to = "fBcVtujtxdk:APA91bFIND4QSnS4e1z3dLj7lxzWXHMHNJHOAERhkcmh6Pna3uNId_EqEBmkWQGmrGrPiYebxQpCVWeqT6YLZ8xFIUzX8QK1F53rSG3E0SCaR-mNoTRdvQOxe9l5Evm8DwNcUwoqbIw_";
-	$to = array (
-			"fBcVtujtxdk:APA91bFIND4QSnS4e1z3dLj7lxzWXHMHNJHOAERhkcmh6Pna3uNId_EqEBmkWQGmrGrPiYebxQpCVWeqT6YLZ8xFIUzX8QK1F53rSG3E0SCaR-mNoTRdvQOxe9l5Evm8DwNcUwoqbIw_",
-			"cqdGM33hGZ8:APA91bHWYv0ml0szFdsLnxsHiW8u3USMEL5N0mtdhn8RNf-1-vJIGM5rrtmkFmKxNq7ApSekdr_Q6zEPIuYSKvnE0hS6sCUTVAc36og0gqf-d1DKIKojIxI8ufE4RwDkq1Rmmfxc-0Ax" 
-	);
+$app->get ( '/push/:slug/:message', function ($slug, $message) use ($app) {
+	$response = array ();
+	
 	$title = "Latest news";
-	$message = "Hello";
+	
 	$obj = new dboperation ();
-	$response = $obj->sendPush ( $to, $title, $message );
+	
+	$response = $obj->sendPush ( $slug, $title, $message );
 	echoRespnse ( 201, $response );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
-// to get data from players table by player_id////////////////////////////////////
+// to get All device/////////////////////////////////////////////////////////////
 $app->get ( '/getAllDevice/', function () use ($app) {
+	$response = array ();
 	$obj = new dboperation ();
-	echoRespnse ( 202, $obj->getAllDevice () );
+	$response = $obj->getAllInstalledDevice ();
+	echoRespnse ( 202, $response );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
+// to get noti_device by slug and isOn////////////////////////////////////////////
+$app->get ( '/getNotiDeviceBySlugAndIsOn/:slug', function ($slug) use ($app) {
+	$response = array ();
+	$obj = new dboperation ();
+	$response = $obj->getNotificationDeviceBySlugAndIsOn ( $slug );
+	echoRespnse ( 202, $response );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
+// to get data from league_slug table by league_id////////////////////////////////////
+$app->get ( '/league_slugByLeagueId/:league_id', function ($league_id) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getLeagueSlugByLeagueId ( $league_id ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
