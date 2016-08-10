@@ -208,12 +208,12 @@ $app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
 // ///////////////////////////////////////////////////////////////////////////////
 
 // for push notification///////////////////////////////////////////////////////////
-$app->get ( '/push/:slug/:message', function ($slug,$message) use ($app) {
+$app->get ( '/push/:slug/:message', function ($slug, $message) use ($app) {
 	$response = array ();
-		
+	
 	$title = "Latest news";
 	
-	$obj = new dboperation ();	
+	$obj = new dboperation ();
 	
 	$response = $obj->sendPush ( $slug, $title, $message );
 	echoRespnse ( 201, $response );
@@ -229,12 +229,19 @@ $app->get ( '/getAllDevice/', function () use ($app) {
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
-// to get noti_device by slug and isOn/////////////////////////////////////////////////////////////
+// to get noti_device by slug and isOn////////////////////////////////////////////
 $app->get ( '/getNotiDeviceBySlugAndIsOn/:slug', function ($slug) use ($app) {
 	$response = array ();
 	$obj = new dboperation ();
-	$response = $obj->getNotificationDeviceBySlugAndIsOn ($slug);
+	$response = $obj->getNotificationDeviceBySlugAndIsOn ( $slug );
 	echoRespnse ( 202, $response );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
+// to get data from league_slug table by league_id////////////////////////////////////
+$app->get ( '/league_slugByLeagueId/:league_id', function ($league_id) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getLeagueSlugByLeagueId ( $league_id ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 

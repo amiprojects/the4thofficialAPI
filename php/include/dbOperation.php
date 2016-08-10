@@ -298,7 +298,7 @@ class dboperation extends DbConnect {
 	}
 	// ///////////////////////////////////////////////////////////////////////////////
 	
-	// to get data from league_slug table by name////////////////////////////////////
+	// to get data from league_slug table by slug////////////////////////////////////
 	function getLeagueSlugBySlug($slug) {
 		$response = array ();
 		$sql = "SELECT league_id, slug FROM league_slug WHERE slug=?";
@@ -312,14 +312,12 @@ class dboperation extends DbConnect {
 				$stmt->bind_result ( $league_id, $slug );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
-					while ( $stmt->fetch () ) {
-						$league_slug = new league_slug ();
-						$league_slug->slug = $slug;
-						$league_slug->league_id = $league_id;
-						
-						// array_push ( $temparr, $league_slug );
-						$temparr = $league_slug;
-					}
+					$stmt->fetch ();
+					$league_slug = new league_slug ();
+					$league_slug->slug = $slug;
+					$league_slug->league_id = $league_id;
+					
+					$temparr = $league_slug;
 					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
@@ -363,7 +361,6 @@ class dboperation extends DbConnect {
 						$season->name = $name;
 						
 						array_push ( $temparr, $season );
-						// $temparr=$season;
 					}
 					
 					$response ["error"] = false;
@@ -467,18 +464,17 @@ class dboperation extends DbConnect {
 				$stmt->bind_result ( $id, $api_id, $name, $venue, $venueCity, $imageUrl, $logo );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
-					while ( $stmt->fetch () ) {
-						$team = new team ();
-						$team->id = $id;
-						$team->api_id = $api_id;
-						$team->name = $name;
-						$team->venue = $venue;
-						$team->venueCity = $venueCity;
-						$team->imageUrl = $imageUrl;
-						$team->logo = $logo;
-						
-						$temparr = $team;
-					}
+					$stmt->fetch ();
+					$team = new team ();
+					$team->id = $id;
+					$team->api_id = $api_id;
+					$team->name = $name;
+					$team->venue = $venue;
+					$team->venueCity = $venueCity;
+					$team->imageUrl = $imageUrl;
+					$team->logo = $logo;
+					
+					$temparr = $team;
 					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
@@ -658,35 +654,34 @@ class dboperation extends DbConnect {
 				$stmt->bind_result ( $id, $api_id, $team_id, $jerseyNumber, $name, $position_id, $position, $nationality, $dateOfBirth, $contractUntil, $imageUrl, $country, $height, $weight, $fouls_commited, $fouls_drawn, $goals, $offsides, $missed_penalties, $scored_penalties, $redcards, $saves, $shots_total, $yellowcards, $shots_on_goal, $assists );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
-					while ( $stmt->fetch () ) {
-						$player = new player ();
-						$player->id = $id;
-						$player->api_id = $api_id;
-						$player->team_id = $team_id;
-						$player->jerseyNumber = $jerseyNumber;
-						$player->name = $name;
-						$player->position_id = $position_id;
-						$player->position = $position;
-						$player->nationality = $nationality;
-						$player->dateOfBirth = $dateOfBirth;
-						$player->contractUntil = $contractUntil;
-						$player->imageUrl = $imageUrl;
-						$player->country = $country;
-						$player->height = $height;
-						$player->weight = $weight;
-						$player->fouls_commited = $fouls_commited;
-						$player->fouls_drawn = $fouls_drawn;
-						$player->goals = $goals;
-						$player->offsides = $offsides;
-						$player->missed_penalties = $missed_penalties;
-						$player->scored_penalties = $scored_penalties;
-						$player->redcards = $redcards;
-						$player->saves = $saves;
-						$player->shots_total = $shots_total;
-						$player->yellowcards = $yellowcards;
-						$player->shots_on_goal = $shots_on_goal;
-						$player->assists = $assists;
-					}
+					$stmt->fetch ();
+					$player = new player ();
+					$player->id = $id;
+					$player->api_id = $api_id;
+					$player->team_id = $team_id;
+					$player->jerseyNumber = $jerseyNumber;
+					$player->name = $name;
+					$player->position_id = $position_id;
+					$player->position = $position;
+					$player->nationality = $nationality;
+					$player->dateOfBirth = $dateOfBirth;
+					$player->contractUntil = $contractUntil;
+					$player->imageUrl = $imageUrl;
+					$player->country = $country;
+					$player->height = $height;
+					$player->weight = $weight;
+					$player->fouls_commited = $fouls_commited;
+					$player->fouls_drawn = $fouls_drawn;
+					$player->goals = $goals;
+					$player->offsides = $offsides;
+					$player->missed_penalties = $missed_penalties;
+					$player->scored_penalties = $scored_penalties;
+					$player->redcards = $redcards;
+					$player->saves = $saves;
+					$player->shots_total = $shots_total;
+					$player->yellowcards = $yellowcards;
+					$player->shots_on_goal = $shots_on_goal;
+					$player->assists = $assists;
 					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
@@ -713,19 +708,20 @@ class dboperation extends DbConnect {
 		// replace API
 		define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
 		
-		if (! $this->getNotificationDeviceBySlugAndIsOn($slug)["error"]){
-			$registrationIds = $this->getNotificationDeviceBySlugAndIsOn($slug)["allDevId"];
-		}else{
+		if (! $this->getNotificationDeviceBySlugAndIsOn ( $slug ) ["error"]) {
+			$registrationIds = $this->getNotificationDeviceBySlugAndIsOn ( $slug ) ["allDevId"];
+		} else {
 			$registrationIds = array ();
 		}
 		
-		//$registrationIds = $this->getAllInstalledDevice()["allDevId"];
+		// $registrationIds = $this->getAllInstalledDevice()["allDevId"];
 		
 		// $registrationIds = array (
 		// $to
 		// );
 		
 		$msg = array (
+				'additionalData' => array("slug"=>$slug),
 				'message' => $message,
 				'title' => $title,
 				'vibrate' => 1,
@@ -750,7 +746,7 @@ class dboperation extends DbConnect {
 		curl_setopt ( $ch, CURLOPT_POSTFIELDS, json_encode ( $fields ) );
 		$result = curl_exec ( $ch );
 		curl_close ( $ch );
-		return json_decode($result);
+		return json_decode ( $result );
 	}
 	// ///////////////////////////////////////////////////////////////////////////////
 	
@@ -763,25 +759,25 @@ class dboperation extends DbConnect {
 		$temparr = array ();
 		$allDevId = array ();
 		
-		$q=0;
+		$q = 0;
 		if ($stmt) {
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
 				$stmt->bind_result ( $id, $device_id, $install_date );
 				$num_rows = $stmt->num_rows;
-				if ($num_rows > 0) {					
-					while ( $stmt->fetch () ) {						
-						$inst_dvc = new install_device();
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$inst_dvc = new install_device ();
 						$inst_dvc->id = $id;
 						$inst_dvc->device_id = $device_id;
 						$inst_dvc->install_date = $install_date;
 						array_push ( $temparr, $inst_dvc );
-						array_push($allDevId, $device_id);
+						array_push ( $allDevId, $device_id );
 					}
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ["device"] = $temparr;
-					$response["allDevId"]=$allDevId;
+					$response ["allDevId"] = $allDevId;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
@@ -803,11 +799,11 @@ class dboperation extends DbConnect {
 		$response = array ();
 		$sql = "SELECT id, slug, device_id, isOn FROM notification_device WHERE slug=? and isOn=1;";
 		$stmt = $this->conn->prepare ( $sql );
-	
+		
 		$temparr = array ();
 		$allDevId = array ();
-	
-		$q=0;
+		
+		$q = 0;
 		if ($stmt) {
 			$stmt->bind_param ( "s", $slug );
 			if ($stmt->execute ()) {
@@ -816,18 +812,18 @@ class dboperation extends DbConnect {
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					while ( $stmt->fetch () ) {
-						$noti_dvc = new notification_device();
+						$noti_dvc = new notification_device ();
 						$noti_dvc->id = $id;
 						$noti_dvc->slug = $slug;
 						$noti_dvc->device_id = $device_id;
 						$noti_dvc->isOn = $isOn;
 						array_push ( $temparr, $noti_dvc );
-						array_push($allDevId, $this->getDeviceByID($device_id)["device"]->device_id);
+						array_push ( $allDevId, $this->getDeviceByID ( $device_id ) ["device"]->device_id );
 					}
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ["noti_device"] = $temparr;
-					$response["allDevId"]=$allDevId;
+					$response ["allDevId"] = $allDevId;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
@@ -849,7 +845,7 @@ class dboperation extends DbConnect {
 		$response = array ();
 		$sql = "SELECT id,device_id,install_date FROM install_device where id=?;";
 		$stmt = $this->conn->prepare ( $sql );
-	
+		
 		if ($stmt) {
 			$stmt->bind_param ( "s", $id );
 			if ($stmt->execute ()) {
@@ -865,6 +861,46 @@ class dboperation extends DbConnect {
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ["device"] = $inst_dvc;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from league_slug table by league_id////////////////////////////////////
+	function getLeagueSlugByLeagueId($leagueId) {
+		$response = array ();
+		$sql = "SELECT league_id, slug FROM league_slug WHERE league_id=?";
+		$stmt = $this->conn->prepare ( $sql );
+		$temparr = array ();
+		
+		if ($stmt) {
+			$stmt->bind_param ( "i", $leagueId );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $league_id, $slug );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					$stmt->fetch ();
+					$league_slug = new league_slug ();
+					$league_slug->slug = $slug;
+					$league_slug->league_id = $league_id;
+					
+					$temparr = $league_slug;
+					
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ['league_slug'] = $temparr;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
