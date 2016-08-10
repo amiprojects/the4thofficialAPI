@@ -708,18 +708,23 @@ class dboperation extends DbConnect {
 	// ///////////////////////////////////////////////////////////////////////////////
 	
 	// push///////////////////////////////////////////////////////////////////////////
-	function sendPush($to, $title, $message) {
+	function sendPush($slug, $title, $message) {
 		// API access key from Google API's Console
 		// replace API
 		define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
 		
-		$registrationIds = $this->getAllInstalledDevice()["allDevId"];
+		if (! $this->getNotificationDeviceBySlugAndIsOn($slug)["error"]){
+			$registrationIds = $this->getNotificationDeviceBySlugAndIsOn($slug)["allDevId"];
+		}else{
+			$registrationIds = array ();
+		}
 		
-		//$registrationIds = $to;
+		//$registrationIds = $this->getAllInstalledDevice()["allDevId"];
 		
 		// $registrationIds = array (
 		// $to
 		// );
+		
 		$msg = array (
 				'message' => $message,
 				'title' => $title,
@@ -745,7 +750,7 @@ class dboperation extends DbConnect {
 		curl_setopt ( $ch, CURLOPT_POSTFIELDS, json_encode ( $fields ) );
 		$result = curl_exec ( $ch );
 		curl_close ( $ch );
-		echo $result;
+		return json_decode($result);
 	}
 	// ///////////////////////////////////////////////////////////////////////////////
 	
@@ -764,7 +769,6 @@ class dboperation extends DbConnect {
 				$stmt->store_result ();
 				$stmt->bind_result ( $id, $device_id, $install_date );
 				$num_rows = $stmt->num_rows;
-				$inst_dvc = new install_device ();				
 				if ($num_rows > 0) {					
 					while ( $stmt->fetch () ) {						
 						$inst_dvc = new install_device();
@@ -778,6 +782,89 @@ class dboperation extends DbConnect {
 					$response ["msg"] = DATA_FOUND;
 					$response ["device"] = $temparr;
 					$response["allDevId"]=$allDevId;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from notification_device table by slug and isOn////////////////
+	function getNotificationDeviceBySlugAndIsOn($slug) {
+		$response = array ();
+		$sql = "SELECT id, slug, device_id, isOn FROM notification_device WHERE slug=? and isOn=1;";
+		$stmt = $this->conn->prepare ( $sql );
+	
+		$temparr = array ();
+		$allDevId = array ();
+	
+		$q=0;
+		if ($stmt) {
+			$stmt->bind_param ( "s", $slug );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $slug, $device_id, $isOn );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					while ( $stmt->fetch () ) {
+						$noti_dvc = new notification_device();
+						$noti_dvc->id = $id;
+						$noti_dvc->slug = $slug;
+						$noti_dvc->device_id = $device_id;
+						$noti_dvc->isOn = $isOn;
+						array_push ( $temparr, $noti_dvc );
+						array_push($allDevId, $this->getDeviceByID($device_id)["device"]->device_id);
+					}
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["noti_device"] = $temparr;
+					$response["allDevId"]=$allDevId;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from install_device table by device_id////////////////////////////////////
+	function getDeviceByID($id) {
+		$response = array ();
+		$sql = "SELECT id,device_id,install_date FROM install_device where id=?;";
+		$stmt = $this->conn->prepare ( $sql );
+	
+		if ($stmt) {
+			$stmt->bind_param ( "s", $id );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$num_rows = $stmt->num_rows;
+				$inst_dvc = new install_device ();
+				if ($num_rows > 0) {
+					$stmt->bind_result ( $id, $device_id, $install_date );
+					$stmt->fetch ();
+					$inst_dvc->id = $id;
+					$inst_dvc->device_id = $device_id;
+					$inst_dvc->install_date = $install_date;
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["device"] = $inst_dvc;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;
