@@ -57,6 +57,53 @@ class consumeJSON extends DbConnect {
 	}
 	
 	/**
+	 * insert fixture by start date and endDate
+	 * @param unknown $Startdate
+	 * @param unknown $enddate
+	 * @return boolean[]|boolean[][]|string[][]|NULL[][]
+	 */
+	function insertFixturesByDateRange($Startdate, $enddate) {
+		$response = array ();
+		$json = file_get_contents ( API_host . 'matches/' . $Startdate . '/'.$enddate.'?api_token=' . api_token . "&include=venue" );
+		$obj = json_decode ( $json, true );
+	
+		$temp_res = array ();
+		$temp_res = array ();
+		$q = 0;
+		$e = 0;
+	
+		foreach ( $obj['data'] as $key => $value ) {
+			try {
+				$fixtures = new fixtures ();
+				$fixtures->api_id = $value ['id'];
+				$fixtures->season_id = $value ['season_id'];
+				$fixtures->competition_id = $value ['competition_id'];
+				$fixtures->match_time = $value ['starting_time'];
+				$fixtures->status = $value ['status'];
+				$fixtures->match_date = $value ['starting_date'];
+				$fixtures->goalsHomeTeam = $value ['home_score'];
+				$fixtures->goalsAwayTeam = $value ['away_score'];
+				$fixtures->homeTeamId = $value ['home_team_id'];
+				$fixtures->awayTeamId = $value ['away_team_id'];
+				$fixtures->leagueId = $value ['competition_id'];
+				$fixtures->venue = $value ['venue'] ['name'];
+				$fixtures->venue_id = $value ['venue'] ['id'];
+				$fixtures->spectators = $value ['status'];
+				$fixtures->ht_score = $value ['ht_score'];
+				$fixtures->ft_score = $value ['ft_score'];
+				$fixtures->et_score = $value ['et_score'];
+				$fixtures->extra_minute = $value ['extra_minute'];
+				$temp_res [$q ++] = $this->insertFixture ( $fixtures );
+			} catch ( Exception $e ) {
+			}
+		}
+		$response ['error'] = false;
+		$response ['result'] = $temp_res;
+	
+		return $response;
+	}
+	
+	/**
 	 * adding fixture
 	 *
 	 * @param fixtures $fixtures        	
@@ -377,47 +424,54 @@ class consumeJSON extends DbConnect {
 	 */
 	function insertPlayers($teamId) {
 		$response = array ();
-		$json = file_get_contents ( API_host . 'players/team/' . $teamId . '?api_token=' . api_token . "&include=lineups" );
-		$obj = json_decode ( $json, true );
-		$q = 0;
-		$tempArr = array ();
-		foreach ( $obj ['data'] as $value ) {
-			$player = new player ();
-			$player->api_id = $value ['id'];
-			$player->team_id = $teamId;
-			$player->name = $value ['name'];
-			$player->nationality = $value ['nationality'];
-			$player->dateOfBirth = $value ['birth_date'];
-			$player->country = $value ['birth_place'];
-			$player->height = $value ['height'];
-			$player->weight = $value ['weight'];
+		
+		try {
+			$json = file_get_contents ( API_host . 'players/team/' . $teamId . '?api_token=' . api_token . "&include=lineups" );
+			$obj = json_decode ( $json, true );
+			$q = 0;
+			$tempArr = array ();
+			foreach ( $obj ['data'] as $value ) {
+				$player = new player ();
+				$player->api_id = $value ['id'];
+				$player->team_id = $teamId;
+				$player->name = $value ['name'];
+				$player->nationality = $value ['nationality'];
+				$player->dateOfBirth = $value ['birth_date'];
+				$player->country = $value ['birth_place'];
+				$player->height = $value ['height'];
+				$player->weight = $value ['weight'];
+					
+				if (count ( $value ['lineups'] ['lineups'] ) > 0) {
+					$lineup = $value ['lineups'] ['lineups'];
+					$lineups = $lineup [(count ( $lineup ) - 1)];
 			
-			if (count ( $value ['lineups'] ['lineups'] ) > 0) {
-				$lineup = $value ['lineups'] ['lineups'];
-				$lineups = $lineup [(count ( $lineup ) - 1)];
-				
-				$player->jerseyNumber = $lineups ['shirt_number'];
-				$player->position = $lineups ['position'];
-				$player->fouls_commited = $lineups ['fouls_commited'];
-				$player->fouls_drawn = $lineups ['fouls_drawn'];
-				$player->goals = $lineups ['goals'];
-				$player->offsides = $lineups ['offsides'];
-				$player->missed_penalties = $lineups ['missed_penalties'];
-				$player->scored_penalties = $lineups ['scored_penalties'];
-				$player->redcards = $lineups ['redcards'];
-				$player->saves = $lineups ['saves'];
-				$player->shots_total = $lineups ['shots_total'];
-				$player->yellowcards = $lineups ['yellowcards'];
-				$player->shots_on_goal=$lineups ['shots_on_goal'];
-				$player->assists =$lineups ['assists'];
-			} else {
+					$player->jerseyNumber = $lineups ['shirt_number'];
+					$player->position = $lineups ['position'];
+					$player->fouls_commited = $lineups ['fouls_commited'];
+					$player->fouls_drawn = $lineups ['fouls_drawn'];
+					$player->goals = $lineups ['goals'];
+					$player->offsides = $lineups ['offsides'];
+					$player->missed_penalties = $lineups ['missed_penalties'];
+					$player->scored_penalties = $lineups ['scored_penalties'];
+					$player->redcards = $lineups ['redcards'];
+					$player->saves = $lineups ['saves'];
+					$player->shots_total = $lineups ['shots_total'];
+					$player->yellowcards = $lineups ['yellowcards'];
+					$player->shots_on_goal=$lineups ['shots_on_goal'];
+					$player->assists =$lineups ['assists'];
+				} else {
+				}
+					
+				$resp ['player'] = $this->insertPlayer ( $player );
+				$tempArr [$q ++] = $resp;
 			}
-			
-			$resp ['player'] = $this->insertPlayer ( $player );
-			$tempArr [$q ++] = $resp;
+			$response ['error'] = false;
+			$response ['result'] = $tempArr;
+		}catch (Exception $e){
+			$response ['error'] = true;
+			$response ['result'] = $e->getMessage();
 		}
-		$response ['error'] = false;
-		$response ['result'] = $tempArr;
+		
 		return $response;
 	}
 	/**
@@ -433,44 +487,49 @@ class consumeJSON extends DbConnect {
 		$q = 0;
 		$tempArr = array ();
 		
-		foreach ( $obj ['data'] [0] ['standings'] ['data'] as $value ) {
-			$leaguestandings = new leagueStandings ();
-			
-			$leaguestandings->api_id = $value ['id'];
-			$leaguestandings->season_id = $seasonId;
-			$leaguestandings->current_round_name = $value ['current_round_name'];
-			$leaguestandings->current_round_id = $value ['current_round_id'];
-			$leaguestandings->position = $value ['position'];
-			$leaguestandings->points = $value ['points'];
-			$leaguestandings->overall_win = $value ['overall_win'];
-			$leaguestandings->overall_draw = $value ['overall_draw'];
-			$leaguestandings->overall_loose = $value ['overall_loose'];
-			$leaguestandings->overall_played = $value ['overall_played'];
-			$leaguestandings->overall_goals_attempted = $value ['overall_goals_attempted'];
-			$leaguestandings->overall_goals_scored = $value ['overall_goals_scored'];
-			$leaguestandings->home_win = $value ['home_win'];
-			$leaguestandings->home_draw = $value ['home_draw'];
-			$leaguestandings->home_loose = $value ['home_loose'];
-			$leaguestandings->home_played = $value ['home_played'];
-			$leaguestandings->home_goals_attempted = $value ['home_goals_attempted'];
-			$leaguestandings->home_goals_scored = $value ['home_goals_scored'];
-			$leaguestandings->away_win = $value ['away_win'];
-			$leaguestandings->away_draw = $value ['away_draw'];
-			$leaguestandings->away_loose = $value ['away_loose'];
-			$leaguestandings->away_played = $value ['away_played'];
-			$leaguestandings->away_goals_attempted = $value ['away_goals_attempted'];
-			$leaguestandings->away_goals_scored = $value ['away_goals_scored'];
-			$leaguestandings->goal_difference = $value ['goal_difference'];
-			$leaguestandings->status = $value ['status'];
-			$leaguestandings->recent_form = $value ['recent_form'];
-			$leaguestandings->result = $value ['result'];
-			$leaguestandings->team_id = $value ['team'] ['id'];
-			
-			$resp ['leaguestandings'] = $this->setStandings ( $leaguestandings );
-			$tempArr [$q ++] = $resp;
+		try{
+			foreach ( $obj ['data'] [0] ['standings'] ['data'] as $value ) {
+				$leaguestandings = new leagueStandings ();
+					
+				$leaguestandings->api_id = $value ['id'];
+				$leaguestandings->season_id = $seasonId;
+				$leaguestandings->current_round_name = $value ['current_round_name'];
+				$leaguestandings->current_round_id = $value ['current_round_id'];
+				$leaguestandings->position = $value ['position'];
+				$leaguestandings->points = $value ['points'];
+				$leaguestandings->overall_win = $value ['overall_win'];
+				$leaguestandings->overall_draw = $value ['overall_draw'];
+				$leaguestandings->overall_loose = $value ['overall_loose'];
+				$leaguestandings->overall_played = $value ['overall_played'];
+				$leaguestandings->overall_goals_attempted = $value ['overall_goals_attempted'];
+				$leaguestandings->overall_goals_scored = $value ['overall_goals_scored'];
+				$leaguestandings->home_win = $value ['home_win'];
+				$leaguestandings->home_draw = $value ['home_draw'];
+				$leaguestandings->home_loose = $value ['home_loose'];
+				$leaguestandings->home_played = $value ['home_played'];
+				$leaguestandings->home_goals_attempted = $value ['home_goals_attempted'];
+				$leaguestandings->home_goals_scored = $value ['home_goals_scored'];
+				$leaguestandings->away_win = $value ['away_win'];
+				$leaguestandings->away_draw = $value ['away_draw'];
+				$leaguestandings->away_loose = $value ['away_loose'];
+				$leaguestandings->away_played = $value ['away_played'];
+				$leaguestandings->away_goals_attempted = $value ['away_goals_attempted'];
+				$leaguestandings->away_goals_scored = $value ['away_goals_scored'];
+				$leaguestandings->goal_difference = $value ['goal_difference'];
+				$leaguestandings->status = $value ['status'];
+				$leaguestandings->recent_form = $value ['recent_form'];
+				$leaguestandings->result = $value ['result'];
+				$leaguestandings->team_id = $value ['team'] ['id'];
+					
+				$resp ['leaguestandings'] = $this->setStandings ( $leaguestandings );
+				$tempArr [$q ++] = $resp;
+			}
+			$response ['error'] = false;
+			$response ['result'] = $tempArr;
+		}catch (Exception $e){
+			$response ['error'] = true;
+			$response ['result'] = $e->getMessage();
 		}
-		$response ['error'] = false;
-		$response ['result'] = $tempArr;
 		return $response;
 	}
 	

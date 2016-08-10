@@ -225,7 +225,7 @@ $app->get ( '/push', function () use ($app) {
 // to get data from players table by player_id////////////////////////////////////
 $app->get ( '/getAllDevice/', function () use ($app) {
 	$obj = new dboperation ();
-	echoRespnse ( 202, $obj->getAllDevice (  ) );
+	echoRespnse ( 202, $obj->getAllDevice () );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
@@ -242,6 +242,7 @@ $app->get ( '/standings/season/:id', function ($id) use ($app) {
 /**
  * *******************API for match details************************
  */
+
 /**
  * storing fixture
  */
@@ -263,8 +264,15 @@ $app->post ( '/legue', function () use ($app) {
 	echoRespnse ( 201, $response );
 } );
 
+$app->post ( '/fixture/:startDate/:endDate', function ($startDate,$endDate) use ($app) {
+	$response = array ();
+	$obj = new consumeJSON ();
+	$response = $obj->insertFixturesByDateRange($startDate, $endDate);
+	echoRespnse ( 201, $response );
+} );
+
 /**
- * add data in legue table
+ * get fixture by date range
  */
 $app->get ( '/fixtues/:startDate/:endDate', function ($startDate, $endDate) use ($app) {
 	$response = array ();
