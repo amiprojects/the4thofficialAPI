@@ -121,4 +121,8 @@ class league_slug {
 	public $slug;
 	public $league_id;
 }
+class category {
+	public $categoryId;
+	public $slug;
+}
 ?>

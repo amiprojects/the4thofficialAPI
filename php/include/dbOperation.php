@@ -880,9 +880,8 @@ class dboperation extends DbConnect {
 	// to get data from league_slug table by league_id////////////////////////////////////
 	function getLeagueSlugByLeagueId($leagueId) {
 		$response = array ();
-		$sql = "SELECT league_id, slug FROM league_slug WHERE league_id=?";
+		$sql = "SELECT league_id, slug FROM league_slug WHERE league_id=?;";
 		$stmt = $this->conn->prepare ( $sql );
-		$temparr = array ();
 		
 		if ($stmt) {
 			$stmt->bind_param ( "i", $leagueId );
@@ -895,12 +894,47 @@ class dboperation extends DbConnect {
 					$league_slug = new league_slug ();
 					$league_slug->slug = $slug;
 					$league_slug->league_id = $league_id;
-					
-					$temparr = $league_slug;
-					
+										
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
-					$response ['league_slug'] = $temparr;
+					$response ['league_slug'] = $league_slug;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	// ///////////////////////////////////////////////////////////////////////////////
+	
+	// to get data from category table by slug////////////////////////////////////
+	function getCategoryBySlug($slug) {
+		$response = array ();
+		$sql = "SELECT categoryId, slug, name, img, jerseyImgSrc, isDepth, isLegue FROM category WHERE slug=?;";
+		$stmt = $this->conn->prepare ( $sql );
+	
+		if ($stmt) {
+			$stmt->bind_param ( "s", $slug );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $categoryId, $slug, $name, $img, $jerseyImgSrc, $isDepth, $isLegue );
+				$num_rows = $stmt->num_rows;				
+				if ($num_rows > 0) {
+					$stmt->fetch ();
+					$category = new category();
+					$category->categoryId = $categoryId;
+					$category->slug = $slug;
+												
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["category"] = $category;
 				} else {
 					$response ["error"] = true;
 					$response ["msg"] = DATA_NOT_FOUND;

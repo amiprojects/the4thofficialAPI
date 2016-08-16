@@ -245,6 +245,13 @@ $app->get ( '/league_slugByLeagueId/:league_id', function ($league_id) use ($app
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 
+// to get data from category table by slug////////////////////////////////////
+$app->get ( '/categoryBySlug/:slug', function ($slug) use ($app) {
+	$obj = new dboperation ();
+	echoRespnse ( 202, $obj->getCategoryBySlug ( $slug ) );
+} );
+// ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * get standings by season id
  */
@@ -280,10 +287,10 @@ $app->post ( '/legue', function () use ($app) {
 	echoRespnse ( 201, $response );
 } );
 
-$app->post ( '/fixture/:startDate/:endDate', function ($startDate,$endDate) use ($app) {
+$app->post ( '/fixture/:startDate/:endDate', function ($startDate, $endDate) use ($app) {
 	$response = array ();
 	$obj = new consumeJSON ();
-	$response = $obj->insertFixturesByDateRange($startDate, $endDate);
+	$response = $obj->insertFixturesByDateRange ( $startDate, $endDate );
 	echoRespnse ( 201, $response );
 } );
 
