@@ -278,9 +278,19 @@ $app->get ( '/getAPIKey', function () use ($app) {
 } );
 
 /**
+ * get data in legue table
+ */
+$app->get ( '/legue', function () use ($app) {
+	$response = array ();
+	$obj = new dboperation();
+	$response = $obj->getAllLeague();
+	echoRespnse ( 201, $response );
+} );
+
+/**
  * add data in legue table
  */
-$app->post ( '/legue', function () use ($app) {
+$app->post ( '/syncdata', function () use ($app) {
 	$response = array ();
 	$obj = new consumeJSON ();
 	$response = $obj->insertLegue ();

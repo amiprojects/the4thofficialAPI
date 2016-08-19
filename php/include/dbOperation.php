@@ -949,6 +949,49 @@ class dboperation extends DbConnect {
 		}
 		return $response;
 	}
+	
+	/**
+	 * getting all legue
+	 * @return boolean[]|string[]|category[]
+	 */
+	function getAllLeague() {
+		$response = array ();
+		$sql = "SELECT categoryId, slug, name, img, jerseyImgSrc, isDepth, isLegue FROM category WHERE isLegue=1;";
+		$stmt = $this->conn->prepare ( $sql );
+	
+		if ($stmt) {
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $categoryId, $slug, $name, $img, $jerseyImgSrc, $isDepth, $isLegue );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					$q=0;
+					$temp=array();
+					while ($stmt->fetch ()){
+						$category = new category();
+						$category->categoryId = $categoryId;
+						$category->slug = $slug;
+						$temp[$q++]=$category;
+					}
+					
+	
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["legues"] = $temp;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
 	// ///////////////////////////////////////////////////////////////////////////////
 	
 	// while ( $result = $stmt1->fetch () ) {
