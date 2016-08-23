@@ -251,6 +251,17 @@ $app->get ( '/categoryBySlug/:slug', function ($slug) use ($app) {
 	echoRespnse ( 202, $obj->getCategoryBySlug ( $slug ) );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
+/**
+ * get category id string usin slug array
+ */
+$app->post ( '/categoryBySlugs', function () use ($app) {
+	$obj = new dboperation ();
+	verifyRequiredParams ( array (
+			"slugArr" 
+	) );
+	$var = $app->request->post ( "slugArr" );
+	echoRespnse ( 202, $obj->getCatStrBySlugArr ( $var ) );
+} );
 
 /**
  * get standings by season id
@@ -282,8 +293,8 @@ $app->get ( '/getAPIKey', function () use ($app) {
  */
 $app->get ( '/legue', function () use ($app) {
 	$response = array ();
-	$obj = new dboperation();
-	$response = $obj->getAllLeague();
+	$obj = new dboperation ();
+	$response = $obj->getAllLeague ();
 	echoRespnse ( 201, $response );
 } );
 
