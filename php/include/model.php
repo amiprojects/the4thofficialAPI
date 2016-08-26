@@ -36,6 +36,7 @@ class league {
 	public $api_id;
 	public $name;
 	public $is_active;
+	public $legue;
 }
 class season {
 	public $id;

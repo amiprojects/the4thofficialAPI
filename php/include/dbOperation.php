@@ -551,13 +551,22 @@ class dboperation extends DbConnect {
 	 * @param unknown $date        	
 	 * @return boolean[]|string[]|NULL[]|fixtures[][][]
 	 */
-	function getFixturesByDate($startDate, $endDate, $orderby) {
+	function getFixturesByDate($startDate, $endDate, $orderby, $legues) {		
+		
 		$response = array ();
-		if ($orderby == 1) {
-			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date";
-		} else {
-			$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date DESC";
-		}
+		if ($legues == '0') {
+			if ($orderby == 1) {
+				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date";
+			} else {
+				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date DESC";
+			}
+		}else{	
+			if ($orderby == 1) {
+				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? and ".$legues." order by match_date";
+			} else {
+				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? and ".$legues." order by match_date DESC";
+			}
+		}		
 		
 		$stmt = $this->conn->prepare ( $sql );
 		$temparr = array ();
@@ -721,7 +730,9 @@ class dboperation extends DbConnect {
 		// );
 		
 		$msg = array (
-				'additionalData' => array("slug"=>$slug),
+				'additionalData' => array (
+						"slug" => $slug 
+				),
 				'message' => $message,
 				'title' => $title,
 				'vibrate' => 1,
@@ -894,7 +905,7 @@ class dboperation extends DbConnect {
 					$league_slug = new league_slug ();
 					$league_slug->slug = $slug;
 					$league_slug->league_id = $league_id;
-										
+					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ['league_slug'] = $league_slug;
@@ -919,19 +930,19 @@ class dboperation extends DbConnect {
 		$response = array ();
 		$sql = "SELECT categoryId, slug, name, img, jerseyImgSrc, isDepth, isLegue FROM category WHERE slug=?;";
 		$stmt = $this->conn->prepare ( $sql );
-	
+		
 		if ($stmt) {
 			$stmt->bind_param ( "s", $slug );
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
 				$stmt->bind_result ( $categoryId, $slug, $name, $img, $jerseyImgSrc, $isDepth, $isLegue );
-				$num_rows = $stmt->num_rows;				
+				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
 					$stmt->fetch ();
-					$category = new category();
+					$category = new category ();
 					$category->categoryId = $categoryId;
 					$category->slug = $slug;
-												
+					
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ["category"] = $category;
@@ -951,63 +962,107 @@ class dboperation extends DbConnect {
 	}
 	
 	/**
+	 * get legue by slug name
+	 * @param unknown $slug
+	 * @return boolean[]|string[]|league[]
+	 */
+	function getLegueBySlugName($slug) {
+		$response = array ();
+		$sql = "SELECT id, api_id, name, is_active, slug FROM league WHERE slug=?;";
+		$stmt = $this->conn->prepare ( $sql );
+	
+		if ($stmt) {
+			$stmt->bind_param ( "s", $slug );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ( $id, $api_id, $name, $is_active, $slug );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					$stmt->fetch ();
+					$legue = new league();
+					$legue->id=$id;
+					$legue->api_id=$api_id;
+					$legue->name=$name;
+					$legue->is_active=$is_active;
+					$legue->slug = $slug;
+						
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["legue"] = $legue;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	
+	/**
 	 * get category list from slug list
-	 * @param unknown $slugArr
+	 * 
+	 * @param unknown $slugArr        	
 	 * @return boolean[]|string[]|NULL[]
 	 */
 	function getCatStrBySlugArr($slugArr) {
 		$response = array ();
-		$sluglst=array();
-		$sluglst=json_decode($slugArr,true);
+		$sluglst = array ();
+		$sluglst = json_decode ( $slugArr, true );
 		try {
-			$str=array();
-			$q=0;
-			foreach ($sluglst as $slug){
-				$res=$this->getCategoryBySlug($slug);
-				if(!$res['error']){
-					$str[$q++]=$res['category']->categoryId;
+			$str = array ();
+			$q = 0;
+			foreach ( $sluglst as $slug ) {
+				$res = $this->getCategoryBySlug ( $slug );
+				if (! $res ['error']) {
+					$str [$q ++] = $res ['category']->categoryId;
 				}
 			}
-			if(count($str)>0){
-				$response['error']=false;
-				$response['msg']=DATA_FOUND;
-				$response['categoryString']=implode(",",$str);
-			}else{
-				$response['error']=true;
-				$response['msg']=DATA_NOT_FOUND;
-			}			
-		}catch (Exception $e){
-			$response['error']=true;
-			$response['msg']=$e->getMessage();
+			if (count ( $str ) > 0) {
+				$response ['error'] = false;
+				$response ['msg'] = DATA_FOUND;
+				$response ['categoryString'] = implode ( ",", $str );
+			} else {
+				$response ['error'] = true;
+				$response ['msg'] = DATA_NOT_FOUND;
+			}
+		} catch ( Exception $e ) {
+			$response ['error'] = true;
+			$response ['msg'] = $e->getMessage ();
 		}
 		return $response;
 	}
 	
 	/**
 	 * getting all legue
+	 * 
 	 * @return boolean[]|string[]|category[]
 	 */
 	function getAllLeague() {
 		$response = array ();
 		$sql = "SELECT categoryId, slug, name, img, jerseyImgSrc, isDepth, isLegue FROM category WHERE isLegue=1;";
 		$stmt = $this->conn->prepare ( $sql );
-	
+		
 		if ($stmt) {
 			if ($stmt->execute ()) {
 				$stmt->store_result ();
 				$stmt->bind_result ( $categoryId, $slug, $name, $img, $jerseyImgSrc, $isDepth, $isLegue );
 				$num_rows = $stmt->num_rows;
 				if ($num_rows > 0) {
-					$q=0;
-					$temp=array();
-					while ($stmt->fetch ()){
-						$category = new category();
+					$q = 0;
+					$temp = array ();
+					while ( $stmt->fetch () ) {
+						$category = new category ();
 						$category->categoryId = $categoryId;
 						$category->slug = $slug;
-						$temp[$q++]=$category;
+						$temp [$q ++] = $category;
 					}
 					
-	
 					$response ["error"] = false;
 					$response ["msg"] = DATA_FOUND;
 					$response ["legues"] = $temp;
@@ -1022,6 +1077,37 @@ class dboperation extends DbConnect {
 		} else {
 			$response ["error"] = true;
 			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	
+	
+	
+	function getFixtureByslugs( $startDate, $endDate, $orderby, $slugArr) {
+		$response = array ();
+		$sluglst = array ();
+		$sluglst = json_decode ( $slugArr, true );
+		try {
+			$str = array ();
+			$q = 0;
+			foreach ( $sluglst as $slug ) {
+				$res = $this->getLegueBySlugName( $slug );
+				if (! $res ['error']) {
+					$str [$q ++] = $res ['legue']->api_id;
+				}
+			}
+			if (count ( $str ) > 0) {
+				$response ['error'] = false;
+				$response ['msg'] = DATA_FOUND;
+				$legues="(fixtures.leagueId=".implode ( " or fixtures.leagueId=", $str ).")";
+				$response ['legueString']=$this->getFixturesByDate($startDate, $endDate, $orderby, $legues);
+			} else {
+				$response ['error'] = true;
+				$response ['msg'] = DATA_NOT_FOUND;
+			}
+		} catch ( Exception $e ) {
+			$response ['error'] = true;
+			$response ['msg'] = $e->getMessage ();
 		}
 		return $response;
 	}

@@ -1,4 +1,8 @@
 <?php
+header ( "Access-Control-Allow-Origin: *" );
+header ( "Access-Control-Allow-Credentials: 1" );
+header ( 'content-type: application/json; charset=utf-8' );
+
 require_once '../include/Config.php';
 
 require_once '../include/dbOperation.php';
@@ -327,7 +331,24 @@ $app->get ( '/fixtues/:startDate/:endDate', function ($startDate, $endDate) use 
 	$val = $app->request->get ( "order_sequence" );
 	
 	$obj = new dboperation ();
-	$response = $obj->getFixturesByDate ( $startDate, $endDate, $val );
+	$response = $obj->getFixturesByDate ( $startDate, $endDate, $val, 0 );
+	echoRespnse ( 201, $response );
+} );
+/**
+ * get fixture by date range
+ */
+$app->get ( '/fixtues/:startDate/:endDate/legues', function ($startDate, $endDate) use ($app) {
+	$response = array ();
+	verifyRequiredParams ( array (
+			"order_sequence" ,
+			"legues"
+	) );
+	
+	$orderby = $app->request->get ( "order_sequence" );
+	$legues = $app->request->get ( "legues" );
+	
+	$obj = new dboperation ();
+	$response = $obj->getFixtureByslugs($startDate, $endDate, $orderby, $legues);
 	echoRespnse ( 201, $response );
 } );
 

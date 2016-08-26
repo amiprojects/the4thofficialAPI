@@ -391,14 +391,14 @@ class consumeJSON extends DbConnect {
 		$response = array ();
 		$this->conn->autocommit ( false );
 		if ($this->getRowExistance ( "players", $player->api_id ) ['error']) {
-			$sql = "INSERT ignore INTO players (api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, imageUrl, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards, shots_on_goal,assists) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?);";
+			$sql = "INSERT ignore INTO players (api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards, shots_on_goal,assists) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?);";
 		} else {
-			$sql = "update players set api_id=?, team_id=?, jerseyNumber=?, name=?, position_id=?, position=?, nationality=?, dateOfBirth=?, contractUntil=?, imageUrl=?, country=?, height=?, weight=?, fouls_commited=?, fouls_drawn=?, goals=?, offsides=?, missed_penalties=?, scored_penalties=?, redcards=?, saves=?, shots_total=?, yellowcards=?, shots_on_goal=?,assists=? where api_id=" . $player->api_id . ";";
+			$sql = "update players set api_id=?, team_id=?, jerseyNumber=?, name=?, position_id=?, position=?, nationality=?, dateOfBirth=?, contractUntil=?, country=?, height=?, weight=?, fouls_commited=?, fouls_drawn=?, goals=?, offsides=?, missed_penalties=?, scored_penalties=?, redcards=?, saves=?, shots_total=?, yellowcards=?, shots_on_goal=?,assists=? where api_id=" . $player->api_id . ";";
 		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		if ($stmt) {
-			$stmt->bind_param ( "iiisissssssssiiiiiiiiiiii", $player->api_id, $player->team_id, $player->jerseyNumber, $player->name, $player->position_id, $player->position, $player->nationality, $player->dateOfBirth, $player->contractUntil, $player->imageUrl, $player->country, $player->height, $player->weight, $player->fouls_commited, $player->fouls_drawn, $player->goals, $player->offsides, $player->missed_penalties, $player->scored_penalties, $player->redcards, $player->saves, $player->shots_total, $player->yellowcards,$player->shots_on_goal,$player->assists );
+			$stmt->bind_param ( "iiisisssssssiiiiiiiiiiii", $player->api_id, $player->team_id, $player->jerseyNumber, $player->name, $player->position_id, $player->position, $player->nationality, $player->dateOfBirth, $player->contractUntil, $player->country, $player->height, $player->weight, $player->fouls_commited, $player->fouls_drawn, $player->goals, $player->offsides, $player->missed_penalties, $player->scored_penalties, $player->redcards, $player->saves, $player->shots_total, $player->yellowcards,$player->shots_on_goal,$player->assists );
 			$result = $stmt->execute ();
 			if ($result) {
 				$this->conn->commit ();
