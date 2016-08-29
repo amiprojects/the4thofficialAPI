@@ -551,22 +551,39 @@ class dboperation extends DbConnect {
 	 * @param unknown $date        	
 	 * @return boolean[]|string[]|NULL[]|fixtures[][][]
 	 */
-	function getFixturesByDate($startDate, $endDate, $orderby, $legues) {		
+	function getFixturesByDate($startDate, $endDate, $orderby, $legues, $clubs) {		
 		
 		$response = array ();
-		if ($legues == '0') {
+		if ($legues == '0' && $clubs=='0') {
 			if ($orderby == 1) {
-				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date";
+				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? order by match_date";
 			} else {
-				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? order by match_date DESC";
+				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? order by match_date DESC";
 			}
-		}else{	
-			if ($orderby == 1) {
-				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? and ".$legues." order by match_date";
-			} else {
-				$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and match_date BETWEEN ? and ? and ".$legues." order by match_date DESC";
+		}else{
+			if($legues!="" && $clubs!=""){
+				if ($orderby == 1) {
+					$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? and (".$legues." or ".$clubs.") order by match_date";
+				} else {
+					$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? and (".$legues." or ".$clubs.") order by match_date DESC";
+				}
+			}elseif ($legues!=""){
+				if ($orderby == 1) {
+					$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? and (".$legues.") order by match_date";
+				} else {
+					$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? and (".$legues.") order by match_date DESC";
+				}
+			}elseif ($clubs!=""){
+				if ($orderby == 1) {
+					$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? and (".$clubs.") order by match_date";
+				} else {
+					$sql = "SELECT fixtures.id, fixtures.api_id, fixtures.season_id, fixtures.competition_id, fixtures.match_time, fixtures.status, fixtures.match_date, fixtures.goalsHomeTeam, fixtures.goalsAwayTeam, fixtures.homeTeamId, fixtures.awayTeamId, fixtures.leagueId, fixtures.venue, fixtures.spectators, fixtures.extra_minute, fixtures.venue_id, fixtures.ht_score, fixtures.ft_score, fixtures.et_score, league.name as league_name FROM fixtures, league WHERE league.api_id=fixtures.competition_id and fixtures.match_date BETWEEN ? and ? and (".$clubs.") order by match_date DESC";
+				}
+			}else{
+				
 			}
-		}		
+			
+		}
 		
 		$stmt = $this->conn->prepare ( $sql );
 		$temparr = array ();
@@ -601,8 +618,22 @@ class dboperation extends DbConnect {
 						$fixture->et_score = $et_score;
 						$fixture->league_name = $league_name;
 						
-						$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
-						$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
+// 						$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
+						
+// 						$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
+						
+						if($this->getTeamByTeamId ( $homeTeamId ) ['error']){							
+							
+						}else{
+							$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
+						}
+						
+						if($this->getTeamByTeamId ( $awayTeamId ) ['error']){
+								
+						}else{
+							$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
+						}
+						
 						
 						if (array_key_exists ( $match_date, $temparr )) {
 							array_push ( $temparr [$match_date], $fixture );
@@ -1005,6 +1036,46 @@ class dboperation extends DbConnect {
 	}
 	
 	/**
+	 * get team by slug
+	 * @param unknown $slug
+	 * @return boolean[]|string[]|league[]
+	 */
+	function getTeamBySlugName($slug) {
+		$response = array ();
+		$sql = "select t.api_id,t.name,c.slug FROM category c, team t where lower(c.name) like lower(CONCAT('%',t.name,'%')) and c.slug=? LIMIT 1;";
+		$stmt = $this->conn->prepare ( $sql );
+	
+		if ($stmt) {
+			$stmt->bind_param ( "s", $slug );
+			if ($stmt->execute ()) {
+				$stmt->store_result ();
+				$stmt->bind_result ($api_id, $name, $slug );
+				$num_rows = $stmt->num_rows;
+				if ($num_rows > 0) {
+					$stmt->fetch ();
+					$temp=array();
+					$temp['api_id']=$api_id;
+					$temp['name']=$name;
+					$temp['slug']=$slug;
+	
+					$response ["error"] = false;
+					$response ["msg"] = DATA_FOUND;
+					$response ["data"] = $temp;
+				} else {
+					$response ["error"] = true;
+					$response ["msg"] = DATA_NOT_FOUND;
+				}
+			} else {
+				$response ["error"] = true;
+				$response ["msg"] = QUERY_EXCEPTION;
+			}
+		} else {
+			$response ["error"] = true;
+			$response ["msg"] = QUERY_EXCEPTION;
+		}
+		return $response;
+	}
+	/**
 	 * get category list from slug list
 	 * 
 	 * @param unknown $slugArr        	
@@ -1081,33 +1152,70 @@ class dboperation extends DbConnect {
 		return $response;
 	}
 	
+	/**
+	 * get all fixture by league and club list
+	 * @param unknown $startDate
+	 * @param unknown $endDate
+	 * @param unknown $orderby
+	 * @param unknown $slugArr
+	 * @param unknown $clubs
+	 * @return boolean[]|string[]|boolean[][]|string[][]|NULL[][]|][[][]|NULL[]
+	 */
 	
-	
-	function getFixtureByslugs( $startDate, $endDate, $orderby, $slugArr) {
+	function getFixtureByslugs( $startDate, $endDate, $orderby, $slugArr,$clubs) {
 		$response = array ();
 		$sluglst = array ();
+		$clubslst=array();
 		$sluglst = json_decode ( $slugArr, true );
+		$clubslst= json_decode ( $clubs, true );
 		try {
 			$str = array ();
 			$q = 0;
+			$str1 = array ();
+			$p = 0;
+			
 			foreach ( $sluglst as $slug ) {
 				$res = $this->getLegueBySlugName( $slug );
 				if (! $res ['error']) {
 					$str [$q ++] = $res ['legue']->api_id;
 				}
 			}
-			if (count ( $str ) > 0) {
-				$response ['error'] = false;
-				$response ['msg'] = DATA_FOUND;
-				$legues="(fixtures.leagueId=".implode ( " or fixtures.leagueId=", $str ).")";
-				$response ['legueString']=$this->getFixturesByDate($startDate, $endDate, $orderby, $legues);
+			
+			foreach ( $clubslst as $slug ) {
+				$res = $this->getTeamBySlugName( $slug );
+				if (! $res ['error']) {
+					$str1 [$p ++] = $res ['data']['api_id'];
+				}
+			}
+			
+			if (count ( $str ) > 0 || count ( $str1 ) > 0 ) {
+				if(count ( $str ) > 0 ){
+					$legues="(fixtures.leagueId=".implode ( " or fixtures.leagueId=", $str ).")";
+				}else{
+					$legues="";
+				}
+				if(count ( $str1 ) > 0 ){
+					$clubs="(fixtures.awayTeamId=".implode ( " or fixtures.awayTeamId=", $str1 )." or fixtures.homeTeamId=".implode ( " or fixtures.homeTeamId=", $str1 ).")";
+				}else{
+					$clubs="";
+				}
+				$resp=$this->getFixturesByDate($startDate, $endDate, $orderby, $legues,$clubs);
+				if(!$resp['error']){
+					$response ['error'] = false;
+					$response ['msg'] = DATA_FOUND;
+					$response ['legueString']=$resp;
+				}else{
+					$response ['error'] = true;
+					$response ['msg'] = DATA_NOT_FOUND;
+				}
+				
 			} else {
 				$response ['error'] = true;
 				$response ['msg'] = DATA_NOT_FOUND;
 			}
 		} catch ( Exception $e ) {
 			$response ['error'] = true;
-			$response ['msg'] = $e->getMessage ();
+			$response ['msg'] = $e->getMessage ().$e->getLine();
 		}
 		return $response;
 	}

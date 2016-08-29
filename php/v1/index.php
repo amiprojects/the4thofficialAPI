@@ -331,24 +331,26 @@ $app->get ( '/fixtues/:startDate/:endDate', function ($startDate, $endDate) use 
 	$val = $app->request->get ( "order_sequence" );
 	
 	$obj = new dboperation ();
-	$response = $obj->getFixturesByDate ( $startDate, $endDate, $val, 0 );
+	$response = $obj->getFixturesByDate ( $startDate, $endDate, $val, 0, 0 );
 	echoRespnse ( 201, $response );
 } );
 /**
  * get fixture by date range
  */
-$app->get ( '/fixtues/:startDate/:endDate/legues', function ($startDate, $endDate) use ($app) {
+$app->get ( '/fixtues/:startDate/:endDate/leguesclubs', function ($startDate, $endDate) use ($app) {
 	$response = array ();
 	verifyRequiredParams ( array (
 			"order_sequence" ,
-			"legues"
+			"legues",
+			"clubs"
 	) );
 	
 	$orderby = $app->request->get ( "order_sequence" );
 	$legues = $app->request->get ( "legues" );
+	$clubs = $app->request->get ( "clubs" );
 	
 	$obj = new dboperation ();
-	$response = $obj->getFixtureByslugs($startDate, $endDate, $orderby, $legues);
+	$response = $obj->getFixtureByslugs($startDate, $endDate, $orderby, $legues,$clubs);
 	echoRespnse ( 201, $response );
 } );
 

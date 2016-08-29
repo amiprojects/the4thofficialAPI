@@ -40,5 +40,7 @@ define ( "DATA_FOUND", "Data found" );
 define ( "DATA_NOT_FOUND", "No data found" );
 define("ORDER_SEQUENCE", "Order sequence");
 define("SLUGARR", "Slug array");
-define("LEGUES", "legue array")
+define("LEGUES", "legue array");
+define("CLUBS", "club array");
+
 ?>
