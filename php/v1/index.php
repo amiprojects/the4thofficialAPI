@@ -117,6 +117,23 @@ $app->post ( '/insert_noti', function () use ($app) {
 	$response = $obj->insertNotiDevice ( $noti_device, $device_id );
 	echoRespnse ( 201, $response );
 } );
+
+$app->post ( '/insert_notifications', function () use ($app) {
+	$response = array ();
+	
+	verifyRequiredParams ( array (
+			'slugArr',
+			'device_id' 
+	) );
+	
+	$slugArr = $app->request->post ( 'slugArr' );
+	$device_id = $app->request->post ( 'device_id' );
+	
+	$obj = new dboperation ();
+	
+	$response = $obj->insertNotificationsDevice ( $slugArr, $device_id );
+	echoRespnse ( 201, $response );
+} );
 // ///////////////////////////////////////////////////////////////////////////////
 
 // for data updating into notification_device table/////////////////////////////
@@ -340,9 +357,9 @@ $app->get ( '/fixtues/:startDate/:endDate', function ($startDate, $endDate) use 
 $app->get ( '/fixtues/:startDate/:endDate/leguesclubs', function ($startDate, $endDate) use ($app) {
 	$response = array ();
 	verifyRequiredParams ( array (
-			"order_sequence" ,
+			"order_sequence",
 			"legues",
-			"clubs"
+			"clubs" 
 	) );
 	
 	$orderby = $app->request->get ( "order_sequence" );
@@ -350,7 +367,7 @@ $app->get ( '/fixtues/:startDate/:endDate/leguesclubs', function ($startDate, $e
 	$clubs = $app->request->get ( "clubs" );
 	
 	$obj = new dboperation ();
-	$response = $obj->getFixtureByslugs($startDate, $endDate, $orderby, $legues,$clubs);
+	$response = $obj->getFixtureByslugs ( $startDate, $endDate, $orderby, $legues, $clubs );
 	echoRespnse ( 201, $response );
 } );
 
