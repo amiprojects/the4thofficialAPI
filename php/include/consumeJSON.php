@@ -391,7 +391,7 @@ class consumeJSON extends DbConnect {
 		$response = array ();
 		$this->conn->autocommit ( false );
 		if ($this->getRowExistance ( "players", $player->api_id ) ['error']) {
-			$sql = "INSERT ignore INTO players (api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards, shots_on_goal,assists) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?);";
+			$sql = "INSERT ignore INTO players (api_id, team_id, jerseyNumber, name, position_id, position, nationality, dateOfBirth, contractUntil, country, height, weight, fouls_commited, fouls_drawn, goals, offsides, missed_penalties, scored_penalties, redcards, saves, shots_total, yellowcards, shots_on_goal,assists) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?);";
 		} else {
 			$sql = "update players set api_id=?, team_id=?, jerseyNumber=?, name=?, position_id=?, position=?, nationality=?, dateOfBirth=?, contractUntil=?, country=?, height=?, weight=?, fouls_commited=?, fouls_drawn=?, goals=?, offsides=?, missed_penalties=?, scored_penalties=?, redcards=?, saves=?, shots_total=?, yellowcards=?, shots_on_goal=?,assists=? where api_id=" . $player->api_id . ";";
 		}
