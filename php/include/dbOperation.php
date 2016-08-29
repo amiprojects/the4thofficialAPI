@@ -623,13 +623,13 @@ class dboperation extends DbConnect {
 // 						$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
 						
 						if($this->getTeamByTeamId ( $homeTeamId ) ['error']){							
-							
+							$fixture->homeTeam=new team();
 						}else{
 							$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
 						}
 						
 						if($this->getTeamByTeamId ( $awayTeamId ) ['error']){
-								
+							$fixture->awayTeam=new team();
 						}else{
 							$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
 						}
