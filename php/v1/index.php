@@ -229,15 +229,23 @@ $app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
 // ///////////////////////////////////////////////////////////////////////////////
 
 // for push notification///////////////////////////////////////////////////////////
-$app->get ( '/push/:slug/:articleId/:categoryId/:title/:message', function ($slug, $articleId, $categoryId, $title, $message) use ($app) {
+$app->post ( '/push', function () use ($app) {
 	$response = array ();
+	verifyRequiredParams(array('slug','articleId','categoryId','title','message'));
+	
+	$slug= $app->request->post ( 'slug' );
+	$articleId= $app->request->post ( 'articleId' );
+	$categoryId= $app->request->post ( 'categoryId' );
+	$title= $app->request->post ( 'title' );
+	$message= $app->request->post ( 'message' );
 	
 	//$title = "Latest news";
+	
 	
 	$obj = new dboperation ();
 	
 	$response = $obj->sendPush ( $slug, $articleId, $categoryId, $title, $message );
-	echoRespnse ( 201, $response );
+	echoRespnse ( 200, $response );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
 

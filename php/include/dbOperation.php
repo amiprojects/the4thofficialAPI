@@ -821,7 +821,7 @@ class dboperation extends DbConnect {
 	function sendPush($slug, $articleId, $categoryId, $title, $message) {
 		// API access key from Google API's Console
 		// replace API
-		define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
+		
 		
 		if (! $this->getNotificationDeviceBySlugAndIsOn ( $slug ) ["error"]) {
 			$registrationIds = $this->getNotificationDeviceBySlugAndIsOn ( $slug ) ["allDevId"];

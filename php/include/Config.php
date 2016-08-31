@@ -21,6 +21,7 @@ define ( 'DB_PORT', 3306 );
 // define ( 'DB_PORT', 3306 );
 
 define ( "api_token", "CEO6Xe2434mXUx81C9YDkEkdokzV0JHGJ6ZCfvoPSN1FFiB5cs7DSbaByTCy" );
+define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
 define ( "API_host", "https://api.soccerama.pro/v1.1/" );
 
 define ( 'QUERY_EXCEPTION', 'Please check mysql query. Fatal error' );
@@ -42,5 +43,10 @@ define("ORDER_SEQUENCE", "Order sequence");
 define("SLUGARR", "Slug array");
 define("LEGUES", "legue array");
 define("CLUBS", "club array");
+define("SLUG", "slug");
+define("ARTICLEID", "article");
+define("CATEGORYID", "category id");
+define("TITLE", "title");
+define("MESSAGE", "message");
 
 ?>
