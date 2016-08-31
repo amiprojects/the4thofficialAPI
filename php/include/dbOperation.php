@@ -77,6 +77,10 @@ class dboperation extends DbConnect {
 	function insertNotificationsDevice($slugArr, $device_id) {
 		$response = array ();
 		
+		
+		$str = array ();
+		$q = 0;
+		
 		$sluglst = array ();
 		$sluglst = json_decode ( $slugArr, true );
 		
@@ -84,25 +88,27 @@ class dboperation extends DbConnect {
 		
 		$tempdv = $this->getDeviceByDeviceID ( $device_id );
 		
-		if (! $tempdv ['error']) {
-			$str = array ();
-			$q = 0;
+		if (! $tempdv ['error']) {			
 			foreach ( $sluglst as $slug ) {
 				$tempdv1 = $this->getNotiDeviceByDeviceIDandSlug ( $tempdv ['device']->id, $slug );
 				
 				$noti_device = new notification_device ();
 				$noti_device->slug = $slug;
-				$noti_device->isOn = 1;
+				$noti_device->isOn = 1;								
 				
-				if ($tempdv1 ['error']) {					
+				if ($tempdv1 ['error']) {
 					$res = $this->insertNotiDevice ( $noti_device, $device_id );
-					
-					if (! $res ['error']) {
-						$str [$q ++] = $res ['category']->categoryId;
-					}
+					$temp = new temp();
+					$temp->slug = $slug;
+					$temp->msg = $res ['msg'];
+					$str [$q ++] = $temp;
 				} else {
-					$response = $this->updateNotiDevice ( $noti_device, $device_id );
-				}
+					$res = $this->updateNotiDevice ( $noti_device, $device_id );
+					$temp = new temp();
+					$temp->slug = $slug;
+					$temp->msg = $res ['msg'];
+					$str [$q ++] = $temp;
+				}				
 			}
 		} else {
 			foreach ( $sluglst as $slug ) {
@@ -110,8 +116,39 @@ class dboperation extends DbConnect {
 				$noti_device->slug = $slug;
 				$noti_device->isOn = 1;
 				
-				$response = $this->updateNotiDevice ( $noti_device, $device_id );
+				$res = $this->updateNotiDevice ( $noti_device, $device_id );
+				$temp = new temp();
+				$temp->slug = $slug;
+				$temp->msg = $res ['msg'];
+				$str [$q ++] = $temp;
 			}
+		}
+		
+		if (count ( $str ) > 0) {
+			$response ['error'] = false;
+			$response ['msg'] = "Successfull";
+			$response ['Messages'] = $str;
+				
+		} else {
+			$response ['error'] = true;
+			$response ['msg'] = "No data";
+		}
+		
+		$slgs=implode ( "','", $sluglst );
+		$ison=0;
+		$sql = "UPDATE notification_device SET isOn=? WHERE device_id=? and slug NOT IN ('".$slgs."');";
+		$stmt = $this->conn->prepare ( $sql );
+		
+		if ($stmt) {
+			$stmt->bind_param ( "is", $ison,$tempdv ['device']->id);
+			if ($stmt->execute ()) {
+				$this->conn->commit ();
+				$response ['DisabledOtherNotifications'] = "successfull";
+			} else {
+				$response ['DisabledOtherNotifications'] = "failed";
+			}
+		} else {
+			$response ["DisabledOtherNotifications"] = QUERY_EXCEPTION;
 		}
 		
 		return $response;
@@ -660,16 +697,16 @@ class dboperation extends DbConnect {
 						// $fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
 						
 						// $fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
-
-						if($this->getTeamByTeamId ( $homeTeamId ) ['error']){							
-							$fixture->homeTeam=new team();
-						}else{
+						
+						if ($this->getTeamByTeamId ( $homeTeamId ) ['error']) {
+							$fixture->homeTeam = new team ();
+						} else {
 							$fixture->homeTeam = $this->getTeamByTeamId ( $homeTeamId ) ['team'];
 						}
 						
-						if($this->getTeamByTeamId ( $awayTeamId ) ['error']){
-							$fixture->awayTeam=new team();
-						}else{
+						if ($this->getTeamByTeamId ( $awayTeamId ) ['error']) {
+							$fixture->awayTeam = new team ();
+						} else {
 							$fixture->awayTeam = $this->getTeamByTeamId ( $awayTeamId ) ['team'];
 						}
 						
@@ -781,7 +818,7 @@ class dboperation extends DbConnect {
 	// ///////////////////////////////////////////////////////////////////////////////
 	
 	// push///////////////////////////////////////////////////////////////////////////
-	function sendPush($slug, $title, $message) {
+	function sendPush($slug, $articleId, $categoryId, $title, $message) {
 		// API access key from Google API's Console
 		// replace API
 		define ( 'API_ACCESS_KEY', 'AIzaSyCh5CzidZEWZ9Xct7f1IG14CTuurMoGQNc' );
@@ -800,7 +837,9 @@ class dboperation extends DbConnect {
 		
 		$msg = array (
 				'additionalData' => array (
-						"slug" => $slug 
+						"slug" => $slug,
+						"articleId" => $articleId,
+						"categoryId" => $categoryId
 				),
 				'message' => $message,
 				'title' => $title,

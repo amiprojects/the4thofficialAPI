@@ -126,4 +126,7 @@ class category {
 	public $categoryId;
 	public $slug;
 }
+class temp {
+	
+}
 ?>

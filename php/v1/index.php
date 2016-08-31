@@ -229,14 +229,14 @@ $app->get ( '/playerByPlayerId/:id', function ($id) use ($app) {
 // ///////////////////////////////////////////////////////////////////////////////
 
 // for push notification///////////////////////////////////////////////////////////
-$app->get ( '/push/:slug/:message', function ($slug, $message) use ($app) {
+$app->get ( '/push/:slug/:articleId/:categoryId/:title/:message', function ($slug, $articleId, $categoryId, $title, $message) use ($app) {
 	$response = array ();
 	
-	$title = "Latest news";
+	//$title = "Latest news";
 	
 	$obj = new dboperation ();
 	
-	$response = $obj->sendPush ( $slug, $title, $message );
+	$response = $obj->sendPush ( $slug, $articleId, $categoryId, $title, $message );
 	echoRespnse ( 201, $response );
 } );
 // ///////////////////////////////////////////////////////////////////////////////
