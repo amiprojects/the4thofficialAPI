@@ -841,10 +841,12 @@ class dboperation extends DbConnect {
 						"articleId" => $articleId,
 						"categoryId" => $categoryId
 				),
+				'notId'=>time(),
 				'message' => $message,
 				'title' => $title,
-				'vibrate' => 1,
-				'sound' => 1 
+				'vibrate' => 0,
+				'sound' => "default",	
+				//"image" => "https://dl.dropboxusercontent.com/u/887989/antshot.png"
 		);
 		// you can also add images, additionalData
 		
